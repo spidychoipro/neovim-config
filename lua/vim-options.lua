@@ -17,6 +17,7 @@ vim.opt.updatetime = 200
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.undofile = true
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then

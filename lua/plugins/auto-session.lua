@@ -1,0 +1,21 @@
+return {
+    {
+        "rmagatti/auto-session",
+        lazy = false,
+        config = function()
+            require("auto-session").setup({
+                git_use_branch_name = true,
+                bypass_save_filetypes = { "alpha" },
+                session_lens = {
+                    picker = "telescope",
+                    load_on_setup = true,
+                },
+            })
+
+            vim.keymap.set("n", "<leader>ss", "<cmd>AutoSession search<CR>", { desc = "Search sessions" })
+            vim.keymap.set("n", "<leader>sr", "<cmd>AutoSession restore<CR>", { desc = "Restore session" })
+            vim.keymap.set("n", "<leader>sw", "<cmd>AutoSession save<CR>", { desc = "Save session" })
+            vim.keymap.set("n", "<leader>st", "<cmd>AutoSession toggle<CR>", { desc = "Toggle session autosave" })
+        end,
+    },
+}
