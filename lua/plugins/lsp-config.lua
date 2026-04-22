@@ -6,10 +6,38 @@ return {
         end,
     },
     {
+        "WhoIsSethDaniel/mason-tool-installer.nvim",
+        dependencies = {
+            "mason-org/mason.nvim",
+        },
+        config = function()
+            require("mason-tool-installer").setup({
+                ensure_installed = {
+                    "bash-language-server",
+                    "basedpyright",
+                    "black",
+                    "clang-format",
+                    "clangd",
+                    "codelldb",
+                    "debugpy",
+                    "isort",
+                    "lua-language-server",
+                    "powershell-editor-services",
+                    "shellcheck",
+                    "shfmt",
+                    "stylua",
+                },
+                auto_update = false,
+                run_on_start = true,
+                start_delay = 3000,
+            })
+        end,
+    },
+    {
         "williamboman/mason-lspconfig.nvim",
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "basedpyright", "bashls" }
+                ensure_installed = { "lua_ls", "basedpyright", "bashls", "clangd" }
             })
         end
     },
@@ -17,17 +45,21 @@ return {
         "neovim/nvim-lspconfig",
         config = function()
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
-            
-            -- Lua LSP 설정
+
             vim.lsp.config.lua_ls = {
                 cmd = { "lua-language-server" },
                 root_markers = { ".luarc.json", ".git" },
                 filetypes = { "lua" },
-                capabilities = capabilities
-            } 
+                capabilities = capabilities,
+                settings = {
+                    Lua = {
+                        diagnostics = {
+                            globals = { "vim" },
+                        },
+                    },
+                },
+            }
 
-            -- Python LSP (basedpyright) 설정
-            -- 💡 에러의 원인이었던 'root_dir' 함수를 제거했습니다.
             vim.lsp.config.basedpyright = {
                 cmd = {"basedpyright-langserver", "--stdio"}, 
                 root_markers = { "pyproject.toml", "setup.py", ".git" },
@@ -35,23 +67,43 @@ return {
                 capabilities = capabilities,
             }
 
-            -- Bash LSP 설정
             vim.lsp.config.bashls = {
                 cmd = { "bash-language-server", "start" },
                 filetypes = { "sh", "bash" },
-                root_markers = { ".git", "ShellCheckrc" },
+                root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
                 capabilities = capabilities
             }
 
-            -- LSP 활성화 (사용자 방식 유지)
+            vim.lsp.config.clangd = {
+                cmd = {
+                    "clangd",
+                    "--background-index",
+                    "--clang-tidy",
+                    "--completion-style=detailed",
+                    "--header-insertion=iwyu",
+                },
+                filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+                root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", ".git" },
+                capabilities = capabilities
+            }
+
+            vim.api.nvim_create_autocmd("LspAttach", {
+                callback = function(args)
+                    local opts = { buffer = args.buf }
+
+                    vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+                    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+                    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+                    vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+                    vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
+                    vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
+                end,
+            })
+
             vim.lsp.enable("lua_ls")
             vim.lsp.enable("basedpyright")
             vim.lsp.enable("bashls")
-
-            -- 키매핑 (사용자 방식 유지)
-            vim.keymap.set('n', 'K', vim.lsp.buf.hover, {})
-            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, {})
-            vim.keymap.set({'n', 'v'}, '<leader>ca', vim.lsp.buf.code_action, {})
+            vim.lsp.enable("clangd")
         end
     }
 }
