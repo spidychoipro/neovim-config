@@ -156,4 +156,12 @@ ln -s /path/to/neovim-config ~/.config/nvim
 
 ## Screenshots
 
-Screenshots can be added here.
+![Clean startup dashboard](assets/startup.png)
+
+![Python LSP diagnostics](assets/lsp-python.png)
+
+![External run workflow](assets/external-run.png)
+
+![Which-key leader popup](assets/which-key.png)
+
+![Telescope file search](assets/telescope.png)

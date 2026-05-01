@@ -37,7 +37,8 @@ return {
         "williamboman/mason-lspconfig.nvim",
         config = function()
             require("mason-lspconfig").setup({
-                ensure_installed = { "lua_ls", "basedpyright", "bashls", "clangd" }
+                ensure_installed = { "lua_ls", "basedpyright", "bashls", "clangd" },
+                automatic_enable = false,
             })
         end
     },

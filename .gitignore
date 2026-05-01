@@ -1,4 +1,5 @@
 *.log
+.nvimlog
 *.tmp
 .DS_Store
 node_modules/
