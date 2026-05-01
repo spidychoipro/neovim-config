@@ -5,7 +5,7 @@ return {
 			require("conform").setup({
 				formatters_by_ft = {
 					lua = { "stylua" },
-					python = { "isort", "black" },
+					python = { "black" },
 					sh = { "shfmt" },
 					bash = { "shfmt" },
 					zsh = { "shfmt" },
@@ -14,7 +14,7 @@ return {
 				},
 			})
 
-			vim.keymap.set("n", "<leader>gf", function()
+			vim.keymap.set("n", "<leader>f", function()
 				require("conform").format({
 					async = true,
 					lsp_fallback = true,

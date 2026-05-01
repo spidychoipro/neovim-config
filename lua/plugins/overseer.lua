@@ -10,6 +10,38 @@ return {
             "OverseerInfo",
             "OverseerClearCache",
         },
+        keys = {
+            {
+                "<leader>tr",
+                function()
+                    if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified then
+                        vim.cmd("write")
+                    end
+                    local overseer = require("overseer")
+                    overseer.run_task({ tags = { overseer.TAG.RUN } })
+                end,
+                desc = "Run task",
+            },
+            {
+                "<leader>tb",
+                function()
+                    if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified then
+                        vim.cmd("write")
+                    end
+                    local overseer = require("overseer")
+                    overseer.run_task({ tags = { overseer.TAG.BUILD } })
+                end,
+                desc = "Build task",
+            },
+            {
+                "<leader>tt",
+                function()
+                    require("overseer").toggle({ enter = false })
+                end,
+                desc = "Toggle task list",
+            },
+            { "<leader>ta", "<cmd>OverseerTaskAction<CR>", desc = "Task action" },
+        },
         config = function()
             local overseer = require("overseer")
 
@@ -39,27 +71,6 @@ return {
                 end
             end)
 
-            local function save_current_file()
-                if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified then
-                    vim.cmd("write")
-                end
-            end
-
-            vim.keymap.set("n", "<leader>tr", function()
-                save_current_file()
-                overseer.run_task({ tags = { overseer.TAG.RUN } })
-            end, { desc = "Run task" })
-
-            vim.keymap.set("n", "<leader>tb", function()
-                save_current_file()
-                overseer.run_task({ tags = { overseer.TAG.BUILD } })
-            end, { desc = "Build task" })
-
-            vim.keymap.set("n", "<leader>tt", function()
-                overseer.toggle({ enter = false })
-            end, { desc = "Toggle task list" })
-
-            vim.keymap.set("n", "<leader>ta", "<cmd>OverseerTaskAction<CR>", { desc = "Task action" })
         end,
     },
 }
