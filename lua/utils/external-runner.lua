@@ -262,6 +262,19 @@ local function terminal_command(shell, script)
 end
 
 local function open_linux_terminal(info, command)
+    -- 1. Try tmux (Natural Job Control for Linux)
+    if vim.env.TMUX then
+        local shell, pause = find_linux_shell()
+        local script = "cd " .. sh_quote(info.dir)
+            .. " && " .. command
+            .. "; printf '\\n'; " .. pause
+        local job = vim.fn.jobstart({ "tmux", "split-window", "-h", script }, { detach = true })
+        if job > 0 then
+            return
+        end
+    end
+
+    -- 2. Fallback to external GUI terminal
     local shell, pause = find_linux_shell()
     local script = "cd " .. sh_quote(info.dir)
         .. " && " .. command
