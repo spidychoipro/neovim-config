@@ -188,12 +188,19 @@ local function open_windows_terminal(info, command)
     local launcher_script = vim.fs.joinpath(script_dir, "launch-" .. script_id .. ".ps1")
     vim.fn.mkdir(script_dir, "p")
 
+    local script =
+        "$Host.UI.RawUI.WindowTitle = 'Run current file';"
+        .. "Set-Location -LiteralPath " .. ps_quote(info.dir)
+        .. "; try { "
+        .. command
+        .. " } catch { "
+        .. "Write-Host $_"
+        .. " } finally { "
+        .. "Write-Host ''; Read-Host 'Press Enter to close'; exit"
+        .. " }"
+
     local runner_lines = {
-        "$Host.UI.RawUI.WindowTitle = 'Run current file'",
-        "Set-Location -LiteralPath " .. ps_quote(info.dir),
-        command,
-        "Write-Host ''",
-        "Read-Host 'Press Enter to close'",
+        script,
         "Remove-Item -LiteralPath " .. ps_quote(runner_script) .. " -Force -ErrorAction SilentlyContinue",
         "Remove-Item -LiteralPath " .. ps_quote(launcher_script) .. " -Force -ErrorAction SilentlyContinue",
     }

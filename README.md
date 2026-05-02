@@ -1,5 +1,7 @@
 # Neovim Config
 
+[한국어 문서 보기](./README.ko.md)
+
 A clean, fast, IDE-like Neovim configuration focused on language tooling, external terminal execution, and low-friction editing.
 
 This setup treats Neovim as a control center and keeps program execution in a real external terminal.
