@@ -7,9 +7,9 @@ return {
             "MunifTanjim/nui.nvim",
             "nvim-tree/nvim-web-devicons",
         },
-        lazy = false,
-        config = function()
-            vim.keymap.set('n', '<C-n>', ":Neotree filesystem reveal left<CR>", { desc = "Reveal file explorer" })
-        end,
+        cmd = "Neotree",
+        keys = {
+            { "<C-n>", "<cmd>Neotree filesystem reveal left<CR>", desc = "Reveal file explorer" },
+        },
     },
 }
