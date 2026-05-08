@@ -16,6 +16,7 @@
 - **경량 Git 연동**: Gitsigns를 통한 Hunk 관리 및 블레임 지원.
 - **향상된 디버깅 환경**: Dap UI 및 자동 감지 지원.
 - **프로젝트 전역 탐색**: Trouble 및 Telescope 통합.
+- **화려한 인라인 진단**: `tiny-inline-diagnostic.nvim` (VS Code Error Lens 스타일).
 - **포맷팅**: `conform.nvim`을 통한 자동 코드 정렬.
 - **린팅**: `nvim-lint`를 통한 정적 코드 분석.
 - **세션 관리**: `auto-session`을 통한 작업 상태 자동 저장 및 복구.
