@@ -54,11 +54,7 @@ local function find_wt()
 end
 
 local function find_linux_shell()
-    if executable("bash") then
-        return "bash", "read -r -p 'Press Enter to close...' _"
-    end
-
-    return "sh", "printf 'Press Enter to close...'; read -r _"
+    return "sh", "printf '\\nPress Enter to close...'; read -r _"
 end
 
 local function file_info()
@@ -188,23 +184,12 @@ local function open_windows_terminal(info, command, python_info)
         "Set-Location -LiteralPath " .. ps_quote(info.dir),
         "$ErrorActionPreference = 'Continue'",
         "",
+        command,
+        "Write-Host ''",
+        "Read-Host 'Press Enter to close'",
+        "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue",
+        "exit",
     }
-
-    if info.filetype == "python" and python_info then
-        table.insert(script_lines, "Write-Host '--- Python Environment ---'")
-        table.insert(script_lines, "Write-Host 'Interpreter: " .. python_info.path .. "'")
-        table.insert(script_lines, "Write-Host 'Source:      " .. python_info.source .. "'")
-        table.insert(script_lines, "Write-Host '--------------------------'")
-        table.insert(script_lines, "Write-Host ''")
-    end
-
-    table.insert(script_lines, command)
-    table.insert(script_lines, "if ($LASTEXITCODE -ne 0 -or $? -eq $false) {")
-    table.insert(script_lines, "    Write-Host ''")
-    table.insert(script_lines, "    Read-Host 'Press Enter to close'")
-    table.insert(script_lines, "}")
-    table.insert(script_lines, "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue")
-    table.insert(script_lines, "exit")
 
     if vim.fn.writefile(script_lines, runner_script) ~= 0 then
         notify("Failed to create external runner script", vim.log.levels.ERROR)
@@ -291,14 +276,8 @@ local function open_linux_terminal(info, command, python_info)
     if vim.env.TMUX then
         local shell, pause = find_linux_shell()
         local script = "cd " .. sh_quote(info.dir)
-        if info.filetype == "python" and python_info then
-            script = script .. " && echo '--- Python Environment ---'"
-            script = script .. " && echo 'Interpreter: " .. python_info.path .. "'"
-            script = script .. " && echo 'Source:      " .. python_info.source .. "'"
-            script = script .. " && echo '--------------------------' && echo ''"
-        end
-        script = script .. " && " .. command
-            .. "; printf '\\n'; " .. pause
+            .. " && " .. command
+            .. "; " .. pause
         local job = vim.fn.jobstart({ "tmux", "split-window", "-h", script }, { detach = true })
         if job > 0 then
             return
@@ -308,14 +287,8 @@ local function open_linux_terminal(info, command, python_info)
     -- 2. Fallback to external GUI terminal
     local shell, pause = find_linux_shell()
     local script = "cd " .. sh_quote(info.dir)
-    if info.filetype == "python" and python_info then
-        script = script .. " && echo '--- Python Environment ---'"
-        script = script .. " && echo 'Interpreter: " .. python_info.path .. "'"
-        script = script .. " && echo 'Source:      " .. python_info.source .. "'"
-        script = script .. " && echo '--------------------------' && echo ''"
-    end
-    script = script .. " && " .. command
-        .. "; printf '\\n'; " .. pause
+        .. " && " .. command
+        .. "; " .. pause
     local terminal = terminal_command(shell, script)
 
     if not terminal then
