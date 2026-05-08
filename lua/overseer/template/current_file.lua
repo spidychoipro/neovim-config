@@ -70,8 +70,10 @@ return {
                 desc = "Run " .. name,
                 tags = { overseer.TAG.RUN },
                 builder = function()
+                    local venv_utils = require("utils.venv")
+                    local python = venv_utils.get_python_path()
                     return {
-                        cmd = { "python", file },
+                        cmd = { python, file },
                         cwd = dir,
                     }
                 end,

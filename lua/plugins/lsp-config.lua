@@ -81,10 +81,19 @@ return {
             }
 
             vim.lsp.config.basedpyright = {
-                cmd = {"basedpyright-langserver", "--stdio"}, 
-                root_markers = { "pyproject.toml", "setup.py", ".git" },
+                cmd = { "basedpyright-langserver", "--stdio" },
+                root_markers = { "pyproject.toml", "setup.py", ".git", "venv", ".venv", "env" },
                 filetypes = { "python" },
                 capabilities = capabilities,
+                on_init = function(client)
+                    local venv_utils = require("utils.venv")
+                    local python_path = venv_utils.get_python_path(client.config.root_dir)
+                    client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
+                        python = {
+                            pythonPath = python_path,
+                        },
+                    })
+                end,
             }
 
             vim.lsp.config.bashls = {
@@ -109,10 +118,18 @@ return {
                     "--clang-tidy",
                     "--completion-style=detailed",
                     "--header-insertion=iwyu",
+                    "--fallback-style=llvm",
                 },
                 filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-                root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", ".git" },
-                capabilities = capabilities
+                root_markers = {
+                    "compile_commands.json",
+                    "compile_flags.txt",
+                    ".clangd",
+                    ".git",
+                    "CMakeLists.txt",
+                    "Makefile",
+                },
+                capabilities = capabilities,
             }
 
             vim.api.nvim_create_autocmd("LspAttach", {
