@@ -90,29 +90,14 @@ return {
                 pattern = "overseer",
                 callback = function(args)
                     vim.keymap.set("n", "<CR>", function()
-                        -- If we are in the task list, we want default behavior (ShowDetail)
-                        -- But if we are in a task output/detail window, we want to close it.
                         local bufnr = args.buf
-                        if vim.bo[bufnr].filetype == "overseer" then
-                            -- Check if we are in the task list or a detail window
-                            -- Overseer task list usually has a specific name or variable
-                            if vim.api.nvim_buf_get_name(bufnr):match("Overseer") then
-                                -- This is likely the task list
-                                -- We'll let the default binding handle it if we can
-                                -- But to be safe, if we are NOT in the task list, close window.
-                                local win = vim.api.nvim_get_current_win()
-                                local config = vim.api.nvim_win_get_config(win)
-                                if config.relative ~= "" then
-                                    -- It's a floating window (likely detail)
-                                    vim.cmd("close")
-                                else
-                                    -- It's a split window
-                                    -- If it's the bottom split, it might be the task list.
-                                    -- For now, let's just use 'q' for closing and keep <CR> for detail.
-                                    -- BUT the user wants Enter to close.
-                                    vim.cmd("close")
-                                end
-                            end
+                        local bufname = vim.api.nvim_buf_get_name(bufnr)
+                        if bufname:match("Overseer Tasks") then
+                            -- In task list: open detail
+                            require("overseer").run_action("open hsplit")
+                        else
+                            -- In detail window: close
+                            vim.cmd("close")
                         end
                     end, { buffer = args.buf, silent = true })
 
