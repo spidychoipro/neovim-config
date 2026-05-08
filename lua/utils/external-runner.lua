@@ -96,8 +96,10 @@ local function windows_command(info)
     local venv_utils = require("utils.venv")
 
     if info.filetype == "python" then
-        local python = venv_utils.get_python_path()
-        return "& " .. ps_quote(python) .. " " .. file
+        local python = venv_utils.resolve_python()
+        -- Pass both path and source to the runner script via environment variables or direct injection
+        -- For simplicity, we'll inject them into the command string or use them in the runner script
+        return "& " .. ps_quote(python.path) .. " " .. file, python
     end
 
     if info.filetype == "lua" then
@@ -135,8 +137,8 @@ local function linux_command(info)
     local venv_utils = require("utils.venv")
 
     if info.filetype == "python" then
-        local python = venv_utils.get_python_path()
-        return sh_quote(python) .. " " .. file
+        local python = venv_utils.resolve_python()
+        return sh_quote(python.path) .. " " .. file, python
     end
 
     if info.filetype == "lua" then
@@ -171,7 +173,7 @@ local function linux_command(info)
     end
 end
 
-local function open_windows_terminal(info, command)
+local function open_windows_terminal(info, command, python_info)
     if not executable("pwsh.exe") then
         notify("pwsh.exe was not found", vim.log.levels.ERROR)
         return
@@ -183,29 +185,28 @@ local function open_windows_terminal(info, command)
     vim.fn.mkdir(script_dir, "p")
 
     -- Robust PowerShell runner script
-    local venv_utils = require("utils.venv")
-    local python_path = venv_utils.get_python_path()
-
     local script_lines = {
         "$Host.UI.RawUI.WindowTitle = 'Run current file'",
         "Set-Location -LiteralPath " .. ps_quote(info.dir),
         "$ErrorActionPreference = 'Continue'",
         "",
-        "if (" .. (info.filetype == "python" and "true" or "false") .. ") {",
-        "    Write-Host '--- Python Diagnostics ---'",
-        "    & " .. ps_quote(python_path) .. " -c \"import sys, site; print(f'Executable: {sys.executable}'); print(f'Site Packages: {site.getsitepackages()}')\"",
-        "    Write-Host '--------------------------'",
-        "    Write-Host ''",
-        "}",
-        "",
-        command,
-        "if ($LASTEXITCODE -ne 0 -or $? -eq $false) {",
-        "    Write-Host ''",
-        "    Read-Host 'Press Enter to close'",
-        "}",
-        "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue",
-        "exit",
     }
+
+    if info.filetype == "python" and python_info then
+        table.insert(script_lines, "Write-Host '--- Python Environment ---'")
+        table.insert(script_lines, "Write-Host 'Interpreter: " .. python_info.path .. "'")
+        table.insert(script_lines, "Write-Host 'Source:      " .. python_info.source .. "'")
+        table.insert(script_lines, "Write-Host '--------------------------'")
+        table.insert(script_lines, "Write-Host ''")
+    end
+
+    table.insert(script_lines, command)
+    table.insert(script_lines, "if ($LASTEXITCODE -ne 0 -or $? -eq $false) {")
+    table.insert(script_lines, "    Write-Host ''")
+    table.insert(script_lines, "    Read-Host 'Press Enter to close'")
+    table.insert(script_lines, "}")
+    table.insert(script_lines, "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue")
+    table.insert(script_lines, "exit")
 
     if vim.fn.writefile(script_lines, runner_script) ~= 0 then
         notify("Failed to create external runner script", vim.log.levels.ERROR)
@@ -287,12 +288,18 @@ local function terminal_command(shell, script)
     end
 end
 
-local function open_linux_terminal(info, command)
+local function open_linux_terminal(info, command, python_info)
     -- 1. Try tmux (Natural Job Control for Linux)
     if vim.env.TMUX then
         local shell, pause = find_linux_shell()
         local script = "cd " .. sh_quote(info.dir)
-            .. " && " .. command
+        if info.filetype == "python" and python_info then
+            script = script .. " && echo '--- Python Environment ---'"
+            script = script .. " && echo 'Interpreter: " .. python_info.path .. "'"
+            script = script .. " && echo 'Source:      " .. python_info.source .. "'"
+            script = script .. " && echo '--------------------------' && echo ''"
+        end
+        script = script .. " && " .. command
             .. "; printf '\\n'; " .. pause
         local job = vim.fn.jobstart({ "tmux", "split-window", "-h", script }, { detach = true })
         if job > 0 then
@@ -303,7 +310,13 @@ local function open_linux_terminal(info, command)
     -- 2. Fallback to external GUI terminal
     local shell, pause = find_linux_shell()
     local script = "cd " .. sh_quote(info.dir)
-        .. " && " .. command
+    if info.filetype == "python" and python_info then
+        script = script .. " && echo '--- Python Environment ---'"
+        script = script .. " && echo 'Interpreter: " .. python_info.path .. "'"
+        script = script .. " && echo 'Source:      " .. python_info.source .. "'"
+        script = script .. " && echo '--------------------------' && echo ''"
+    end
+    script = script .. " && " .. command
         .. "; printf '\\n'; " .. pause
     local terminal = terminal_command(shell, script)
 
@@ -324,11 +337,11 @@ function M.run_current_file()
         return
     end
 
-    local command, err
+    local command, python_info, err
     if is_windows then
-        command, err = windows_command(info)
+        command, python_info = windows_command(info)
     else
-        command, err = linux_command(info)
+        command, python_info = linux_command(info)
     end
 
     if not command then
@@ -337,9 +350,9 @@ function M.run_current_file()
     end
 
     if is_windows then
-        open_windows_terminal(info, command)
+        open_windows_terminal(info, command, python_info)
     else
-        open_linux_terminal(info, command)
+        open_linux_terminal(info, command, python_info)
     end
 end
 
