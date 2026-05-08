@@ -112,7 +112,7 @@ Supported filetypes:
 
 | Language | Command |
 | --- | --- |
-| Python | `python file.py` |
+| Python | `py file.py` (Windows) or `python file.py` |
 | Lua | `lua file.lua` or `luajit file.lua` |
 | Bash | `bash file.sh` |
 | PowerShell | `pwsh file.ps1` |
