@@ -96,9 +96,7 @@ local function windows_command(info)
     local venv_utils = require("utils.venv")
 
     if info.filetype == "python" then
-        local python = venv_utils.resolve_python()
-        -- Pass both path and source to the runner script via environment variables or direct injection
-        -- For simplicity, we'll inject them into the command string or use them in the runner script
+        local python = venv_utils.resolve_python(info.dir)
         return "& " .. ps_quote(python.path) .. " " .. file, python
     end
 
