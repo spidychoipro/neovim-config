@@ -9,9 +9,9 @@ return {
                 options = {
                     -- Show diagnostics only on the current line
                     -- Set to false to show on all lines (more like VS Code Error Lens)
-                    only_show_on_cursor = false,
+                    show_diags_only_under_cursor = false,
                     -- Display diagnostics when in insert mode
-                    show_in_insert = false,
+                    enable_on_insert = false,
                     -- Use a specific severity to show
                     severity = {
                         vim.diagnostic.severity.ERROR,
@@ -35,15 +35,8 @@ return {
 
             -- Toggle tiny-inline-diagnostic
             vim.keymap.set("n", "<leader>ll", function()
-                local enabled = require("tiny-inline-diagnostic").get_status()
-                if enabled then
-                    require("tiny-inline-diagnostic").disable()
-                    vim.notify("Tiny-inline-diagnostic disabled", vim.log.levels.INFO)
-                else
-                    require("tiny-inline-diagnostic").enable()
-                    vim.notify("Tiny-inline-diagnostic enabled", vim.log.levels.INFO)
-                end
-            end, { desc = "Toggle fancy diagnostics" })
+                require("tiny-inline-diagnostic").toggle()
+            end, { desc = "Toggle inline diagnostics" })
         end,
     },
 }
