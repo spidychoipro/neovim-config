@@ -38,6 +38,12 @@ return {
             local screenkey = require("screenkey")
             screenkey.setup(opts)
 
+            vim.keymap.set("n", "<leader>uo", function()
+                if screenkey.is_active() then
+                    screenkey.toggle()
+                end
+            end, { desc = "Disable Screenkey" })
+
             vim.schedule(function()
                 if not screenkey.is_active() then
                     screenkey.toggle()

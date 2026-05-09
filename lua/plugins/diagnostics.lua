@@ -151,6 +151,10 @@ return {
             vim.keymap.set("n", "<leader>ll", function()
                 tiny_diag.toggle()
             end, { desc = "Toggle Inline Diagnostics" })
+
+            vim.keymap.set("n", "<leader>ld", function()
+                tiny_diag.disable()
+            end, { desc = "Disable Inline Diagnostics" })
         end,
     },
 }
