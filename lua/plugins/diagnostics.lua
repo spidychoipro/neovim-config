@@ -86,6 +86,10 @@ return {
                 preset = "modern",
                 transparent_bg = false,
                 transparent_cursorline = true,
+                signs = {
+                    arrow = "",
+                    up_arrow = "",
+                },
                 options = {
                     show_diags_only_under_cursor = false,
                     show_all_diags_on_cursorline = true,
