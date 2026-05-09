@@ -94,13 +94,22 @@ return {
 
             vim.lsp.config.basedpyright = {
                 cmd = { "basedpyright-langserver", "--stdio" },
-                root_markers = { "pyproject.toml", "setup.py", ".git", "venv", ".venv", "env" },
-                filetypes = { "python" },
+                filetypes = {"python"},
                 capabilities = capabilities,
+                root_dir = function (bufnr, on_dir)
+                    local fname = vim.api.nvim_buf_get_name(bufnr)
+                    local util = require("lspconfig.util")
+                    local found = util.root_pattern(
+                        "pyproject.toml", "setup.py", ".git","venv",".venv","env"
+                    )(fname)
+
+                    on_dir(found or vim.fn.fnamemodify(fname, ":h"))
+                end,
                 settings = {
                     basedpyright = {
                         analysis = {
                             diagnosticMode = "openFilesOnly",
+                            autoSearchPaths = true,
                             exclude = {
                                 "**/.git",
                                 "**/.venv",
@@ -162,6 +171,8 @@ return {
             vim.api.nvim_create_autocmd("LspAttach", {
                 callback = function(args)
                     local opts = { buffer = args.buf }
+
+                    vim.diagnostic.enable(true, { bufnr = args.buf })
 
                     vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP hover" }))
                     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
