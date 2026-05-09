@@ -83,14 +83,19 @@ return {
             local tiny_diag = require("tiny-inline-diagnostic")
 
             tiny_diag.setup({
-                preset = "minimal",
-                transparent_bg = true,
+                preset = "modern",
+                transparent_bg = false,
                 transparent_cursorline = true,
                 options = {
                     show_diags_only_under_cursor = false,
                     show_all_diags_on_cursorline = true,
                     enable_on_insert = true,
-                    throttle = 10,
+                    throttle = 0,
+                    multilines = {
+                        enabled = true,
+                        always_show = true,
+                        trim_whitespaces = true,
+                    },
                     virt_texts = {
                         priority = 4096,
                     },
