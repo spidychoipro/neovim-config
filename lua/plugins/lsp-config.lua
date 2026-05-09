@@ -59,6 +59,49 @@ return {
         config = function()
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
             local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+            local single_file_includes = {}
+            local realtime_lsp_flags = {
+                debounce_text_changes = 80,
+            }
+            local python_analysis_exclude = {
+                "**/.git",
+                "**/.hg",
+                "**/.svn",
+                "**/.venv",
+                "**/venv",
+                "**/env",
+                "**/.virtualenvs",
+                "**/__pycache__",
+                "**/.pytest_cache",
+                "**/.mypy_cache",
+                "**/.ruff_cache",
+                "**/.cache",
+                "**/cache",
+                "**/tmp",
+                "**/temp",
+                "**/node_modules",
+                "**/dist",
+                "**/build",
+                "**/target",
+                "**/AppData/Local/nvim-data",
+                "**/AppData/Local/Temp",
+                "**/AppData/Roaming/npm-cache",
+                "**/AppData/Roaming/Python",
+            }
+
+            local function mason_bin_executable(tool)
+                if not is_windows then
+                    return nil
+                end
+
+                local mason_bin = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin")
+                for _, suffix in ipairs({ ".cmd", ".exe", ".bat", "" }) do
+                    local candidate = vim.fs.joinpath(mason_bin, tool .. suffix)
+                    if vim.fn.filereadable(candidate) == 1 then
+                        return candidate
+                    end
+                end
+            end
 
             local function mason_package_executable(package, pattern)
                 local package_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", package)
@@ -67,6 +110,11 @@ return {
             end
 
             local function tool_path(tool, package, pattern)
+                local mason_bin_path = mason_bin_executable(tool)
+                if mason_bin_path then
+                    return mason_bin_path
+                end
+
                 if is_windows then
                     local mason_path = mason_package_executable(package, pattern)
                     if mason_path and mason_path ~= "" then
@@ -79,10 +127,23 @@ return {
             end
 
             vim.lsp.config.lua_ls = {
-                cmd = { "lua-language-server" },
-                root_markers = { ".luarc.json", ".git" },
+                cmd = { tool_path("lua-language-server", "lua-language-server", "bin/lua-language-server.exe") },
                 filetypes = { "lua" },
                 capabilities = capabilities,
+                flags = realtime_lsp_flags,
+                root_dir = function(bufnr, on_dir)
+                    local fname = vim.api.nvim_buf_get_name(bufnr)
+                    local util = require("lspconfig.util")
+                    local found = util.root_pattern(
+                        ".luarc.json",
+                        ".luarc.jsonc",
+                        ".stylua.toml",
+                        "stylua.toml",
+                        ".git"
+                    )(fname)
+
+                    on_dir(found or vim.fn.fnamemodify(fname, ":h"))
+                end,
                 settings = {
                     Lua = {
                         diagnostics = {
@@ -93,31 +154,38 @@ return {
             }
 
             vim.lsp.config.basedpyright = {
-                cmd = { "basedpyright-langserver", "--stdio" },
+                cmd = { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" },
                 filetypes = {"python"},
                 capabilities = capabilities,
+                flags = realtime_lsp_flags,
                 root_dir = function (bufnr, on_dir)
                     local fname = vim.api.nvim_buf_get_name(bufnr)
                     local util = require("lspconfig.util")
                     local found = util.root_pattern(
-                        "pyproject.toml", "setup.py", ".git","venv",".venv","env"
+                        "pyrightconfig.json",
+                        "basedpyrightconfig.json",
+                        "pyproject.toml",
+                        "setup.py",
+                        "setup.cfg",
+                        "tox.ini",
+                        "requirements.txt",
+                        ".git"
                     )(fname)
 
-                    on_dir(found or vim.fn.fnamemodify(fname, ":h"))
+                    if found then
+                        on_dir(found)
+                    else
+                        local dir = vim.fn.fnamemodify(fname, ":h")
+                        single_file_includes[dir] = { vim.fn.fnamemodify(fname, ":t") }
+                        on_dir(dir)
+                    end
                 end,
                 settings = {
                     basedpyright = {
                         analysis = {
                             diagnosticMode = "openFilesOnly",
-                            autoSearchPaths = true,
-                            exclude = {
-                                "**/.git",
-                                "**/.venv",
-                                "**/venv",
-                                "**/env",
-                                "**/__pycache__",
-                                "**/node_modules",
-                            },
+                            autoSearchPaths = false,
+                            exclude = python_analysis_exclude,
                         },
                     },
                 },
@@ -129,14 +197,26 @@ return {
                             pythonPath = python_path,
                         },
                     })
+
+                    local include = single_file_includes[config.root_dir]
+                    if include then
+                        config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+                            basedpyright = {
+                                analysis = {
+                                    include = include,
+                                },
+                            },
+                        })
+                    end
                 end,
             }
 
             vim.lsp.config.bashls = {
-                cmd = { "bash-language-server", "start" },
+                cmd = { tool_path("bash-language-server", "bash-language-server", "node_modules/.bin/bash-language-server.cmd"), "start" },
                 filetypes = { "sh", "bash" },
                 root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
                 capabilities = capabilities,
+                flags = realtime_lsp_flags,
                 settings = {
                     bashIde = {
                         shellcheckPath = tool_path("shellcheck", "shellcheck", "shellcheck.exe"),
@@ -149,7 +229,7 @@ return {
 
             vim.lsp.config.clangd = {
                 cmd = {
-                    "clangd",
+                    tool_path("clangd", "clangd", "clangd_*/bin/clangd.exe"),
                     "--background-index",
                     "--clang-tidy",
                     "--completion-style=detailed",
@@ -157,6 +237,7 @@ return {
                     "--fallback-style=llvm",
                 },
                 filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
+                flags = realtime_lsp_flags,
                 root_markers = {
                     "compile_commands.json",
                     "compile_flags.txt",

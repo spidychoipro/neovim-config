@@ -13,7 +13,7 @@ return {
             sources = { "nvim_diagnostic" },
             symbols = { error = "E:", warn = "W:", info = "I:", hint = "H:" },
             colored = true,
-            update_in_insert = false,
+            update_in_insert = true,
           },
           "encoding",
           "fileformat",
