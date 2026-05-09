@@ -38,16 +38,25 @@ return {
             local screenkey = require("screenkey")
             screenkey.setup(opts)
 
+            local function enable_screenkey()
+                if not screenkey.is_active() then
+                    screenkey.toggle()
+                end
+            end
+
             vim.keymap.set("n", "<leader>uo", function()
                 if screenkey.is_active() then
                     screenkey.toggle()
                 end
-            end, { desc = "Disable Screenkey" })
+            end, { desc = "Disable Screenkey Until Next File" })
+
+            vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+                group = vim.api.nvim_create_augroup("AutoEnableScreenkey", { clear = true }),
+                callback = enable_screenkey,
+            })
 
             vim.schedule(function()
-                if not screenkey.is_active() then
-                    screenkey.toggle()
-                end
+                enable_screenkey()
             end)
         end,
     },
