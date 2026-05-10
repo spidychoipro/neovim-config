@@ -35,6 +35,41 @@ return {
             end,
         },
         config = function(_, opts)
+            local function patch_screenkey_validate()
+                local ok, util = pcall(require, "screenkey.util")
+                if not ok then
+                    return
+                end
+
+                util.validate = function(spec, user_config, path)
+                    local keys = vim.tbl_keys(spec)
+                    table.sort(keys)
+
+                    for _, key in ipairs(keys) do
+                        local rule = spec[key]
+                        local ok_validate, err = pcall(vim.validate, key, rule[1], rule[2], rule[3])
+                        if not ok_validate then
+                            return false, string.format("%s: %s", path, err)
+                        end
+                    end
+
+                    local errors = {}
+                    for key, _ in pairs(user_config) do
+                        if not spec[key] then
+                            table.insert(errors, string.format("'%s' is not a valid key of %s", key, path))
+                        end
+                    end
+
+                    if #errors == 0 then
+                        return true, nil
+                    end
+
+                    return false, table.concat(errors, "\n")
+                end
+            end
+
+            patch_screenkey_validate()
+
             local screenkey = require("screenkey")
             screenkey.setup(opts)
 
