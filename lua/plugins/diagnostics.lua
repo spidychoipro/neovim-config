@@ -116,9 +116,7 @@ return {
                 refresh_inline_diagnostics(bufnr)
             end
 
-            vim.schedule(function()
-                enable_inline_diagnostics()
-            end)
+            local auto_enable = (vim.g.nvim_config or {}).features.auto_enable_inline_diagnostics
 
             vim.api.nvim_create_autocmd({
                 "BufEnter",
@@ -136,12 +134,18 @@ return {
                 end,
             })
 
-            vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-                group = vim.api.nvim_create_augroup("AutoEnableInlineDiagnostics", { clear = true }),
-                callback = function(args)
-                    enable_inline_diagnostics(args.buf)
-                end,
-            })
+            if auto_enable then
+                vim.schedule(function()
+                    enable_inline_diagnostics()
+                end)
+
+                vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+                    group = vim.api.nvim_create_augroup("AutoEnableInlineDiagnostics", { clear = true }),
+                    callback = function(args)
+                        enable_inline_diagnostics(args.buf)
+                    end,
+                })
+            end
 
             vim.keymap.set("n", "<leader>e", function()
                 vim.diagnostic.open_float()

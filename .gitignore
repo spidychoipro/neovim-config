@@ -5,3 +5,5 @@
 node_modules/
 __pycache__/
 .virtualenvs/
+lua/user.lua
+lua/user/

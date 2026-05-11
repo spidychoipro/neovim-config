@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)](#requirements)
 [![License](https://img.shields.io/badge/license-not%20specified-lightgrey)](#license)
 
-[한국어 문서](./README.ko.md) · [Install](./docs/installation.md) · [Usage](./docs/usage.md) · [Keymaps](./docs/keymaps.md) · [Architecture](./docs/architecture.md) · [Troubleshooting](./docs/troubleshooting.md)
+[한국어 문서](./README.ko.md) · [Install](./docs/installation.md) · [Usage](./docs/usage.md) · [Customization](./docs/customization.md) · [Keymaps](./docs/keymaps.md) · [Architecture](./docs/architecture.md) · [Troubleshooting](./docs/troubleshooting.md)
 
 A fast, IDE-like Neovim configuration focused on language tooling, inline diagnostics, external terminal execution, and a predictable Windows-friendly workflow.
 
@@ -24,6 +24,7 @@ This setup treats Neovim as the editing control center while keeping program exe
 | Debugging and tasks | `nvim-dap`, `dap-ui`, `overseer.nvim`, and task history |
 | Sessions | Automatic save and restore with `auto-session` |
 | Modern APIs | Neovim 0.12-ready Tree-sitter, LSP, diagnostics, and `vim.uv` usage |
+| Local customization | Optional `lua/user.lua` overrides that stay out of git |
 
 ## Preview
 
@@ -97,10 +98,17 @@ See the complete list: [docs/keymaps.md](./docs/keymaps.md).
 | --- | --- |
 | [Installation](./docs/installation.md) | Install, backup, and platform setup |
 | [Usage](./docs/usage.md) | Daily workflows, diagnostics, external runner, sessions |
+| [Customization](./docs/customization.md) | Local preferences without editing shared config files |
 | [Keymaps](./docs/keymaps.md) | Complete keymap reference |
 | [Architecture](./docs/architecture.md) | Directory layout and module responsibilities |
 | [Troubleshooting](./docs/troubleshooting.md) | Health checks, common Windows issues, LSP log cleanup |
 | [Contributing](./CONTRIBUTING.md) | Safe contribution workflow and style expectations |
+
+## Customization
+
+Machine-specific preferences can live in `lua/user.lua`, which is ignored by git. This lets users adjust small choices without editing the shared repository files.
+
+Start with [examples/user.lua](./examples/user.lua), then see [docs/customization.md](./docs/customization.md).
 
 ## Repository Layout
 
@@ -108,12 +116,14 @@ See the complete list: [docs/keymaps.md](./docs/keymaps.md).
 .
 |-- init.lua                  # Bootstrap lazy.nvim and load local modules
 |-- lua/
+|   |-- config/               # Shared defaults and optional local config loader
 |   |-- vim-options.lua       # Editor options and base keymaps
 |   |-- plugins/              # Plugin specs, setup, and keymaps
 |   |-- utils/                # Shared helpers for runners and virtualenvs
 |   `-- overseer/template/    # Task templates
 |-- assets/                   # README screenshots
 |-- docs/                     # User and maintainer documentation
+|-- examples/                 # Copyable local customization examples
 |-- lazy-lock.json            # Locked plugin revisions
 `-- pyrightconfig.json        # Python workspace exclusions
 ```

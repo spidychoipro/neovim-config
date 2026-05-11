@@ -18,6 +18,10 @@ if not vim.uv.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local local_config = require("config.local")
+local_config.load("user")
+require("config.defaults").setup()
+
 require("vim-options")
 require("lazy").setup("plugins", {
   rocks = {
@@ -37,3 +41,4 @@ require("lazy").setup("plugins", {
     },
   },
 })
+local_config.load("user.after")

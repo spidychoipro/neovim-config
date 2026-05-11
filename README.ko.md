@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)](./README.md#requirements)
 [![License](https://img.shields.io/badge/license-not%20specified-lightgrey)](./README.md#license)
 
-[English README](./README.md) · [설치](./docs/installation.md) · [사용법](./docs/usage.md) · [단축키](./docs/keymaps.md) · [구조](./docs/architecture.md) · [문제 해결](./docs/troubleshooting.md)
+[English README](./README.md) · [설치](./docs/installation.md) · [사용법](./docs/usage.md) · [커스터마이징](./docs/customization.md) · [단축키](./docs/keymaps.md) · [구조](./docs/architecture.md) · [문제 해결](./docs/troubleshooting.md)
 
 빠르고 예측 가능한 IDE 스타일 Neovim 설정입니다. Python, Lua, Bash, PowerShell, C, C++ 개발을 중심으로 LSP, inline diagnostics, 외부 터미널 실행, Windows 친화적인 작업 흐름을 제공합니다.
 
@@ -24,6 +24,7 @@
 | 디버깅/작업 | `nvim-dap`, `dap-ui`, `overseer.nvim` |
 | 세션 | `auto-session` 자동 저장/복구 |
 | 최신 API | Neovim 0.12 기준 Tree-sitter, LSP, diagnostic, `vim.uv` 사용 |
+| 로컬 커스터마이징 | git에 올라가지 않는 `lua/user.lua` override 지원 |
 
 ## 미리보기
 
@@ -93,10 +94,17 @@ nvim
 | --- | --- |
 | [Installation](./docs/installation.md) | 설치, 백업, 플랫폼별 준비 |
 | [Usage](./docs/usage.md) | 일상적인 사용 흐름 |
+| [Customization](./docs/customization.md) | 공유 설정 파일을 직접 고치지 않는 로컬 설정 |
 | [Keymaps](./docs/keymaps.md) | 전체 단축키 |
 | [Architecture](./docs/architecture.md) | 디렉터리 구조와 모듈 역할 |
 | [Troubleshooting](./docs/troubleshooting.md) | healthcheck와 문제 해결 |
 | [Contributing](./CONTRIBUTING.md) | 변경 시 지켜야 할 기준 |
+
+## 커스터마이징
+
+개인 장비별 설정은 `lua/user.lua`에 둘 수 있습니다. 이 파일은 git에서 무시되므로 공유 저장소의 기본 설정을 바꾸지 않고도 자기 환경에 맞게 조정할 수 있습니다.
+
+시작 예시는 [examples/user.lua](./examples/user.lua)에 있고, 자세한 설명은 [docs/customization.md](./docs/customization.md)에 있습니다.
 
 ## 저장소 구조
 
@@ -104,12 +112,14 @@ nvim
 .
 |-- init.lua                  # lazy.nvim bootstrap
 |-- lua/
+|   |-- config/               # 기본값과 로컬 설정 loader
 |   |-- vim-options.lua       # 기본 옵션과 공통 단축키
 |   |-- plugins/              # 플러그인 설정
 |   |-- utils/                # 실행기와 virtualenv helper
 |   `-- overseer/template/    # 작업 템플릿
 |-- assets/                   # README 이미지
 |-- docs/                     # 문서
+|-- examples/                 # 복사해서 쓰는 로컬 설정 예시
 |-- lazy-lock.json            # 플러그인 잠금 파일
 `-- pyrightconfig.json        # Python workspace 제외 설정
 ```

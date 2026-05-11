@@ -11,6 +11,12 @@ This configuration aims to keep common workflows close to hand without hiding ho
 5. Use `<leader>xx` when you want a diagnostics list.
 6. Use `:checkhealth` after upgrades or toolchain changes.
 
+## Personal Preferences
+
+Use `lua/user.lua` for local preferences such as relative line numbers, screenkey auto-start, inline diagnostic auto-start, or extra Windows tool paths.
+
+See [customization.md](./customization.md) for the supported options.
+
 ## External Runner
 
 `<leader>r` runs the current file outside Neovim in a real terminal.

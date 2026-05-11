@@ -8,6 +8,9 @@ This repository keeps behavior grouped by responsibility rather than by plugin m
 .
 |-- init.lua
 |-- lua/
+|   |-- config/
+|   |   |-- defaults.lua
+|   |   `-- local.lua
 |   |-- vim-options.lua
 |   |-- plugins.lua
 |   |-- plugins/
@@ -54,10 +57,22 @@ This repository keeps behavior grouped by responsibility rather than by plugin m
 | `lua/plugins/diagnostics.lua` | Diagnostic signs, inline diagnostics, diagnostic keymaps |
 | `lua/plugins/treesitter.lua` | Tree-sitter parser setup and highlighting |
 | `lua/plugins/screenkey.lua` | Screenkey setup, auto enable, manual controls |
+| `lua/config/defaults.lua` | Shared defaults for editor options and feature toggles |
+| `lua/config/local.lua` | Optional `lua/user.lua` and `lua/user/after.lua` loader |
 | `lua/plugins/powershell.lua` | Hidden PowerShell Editor Services job cleanup |
 | `lua/utils/external-runner.lua` | External terminal execution for supported filetypes |
 | `lua/utils/venv.lua` | Python virtual environment detection |
 | `lua/overseer/template/current_file.lua` | Build and run task templates |
+
+## Customization Flow
+
+1. `init.lua` loads optional `lua/user.lua`.
+2. `lua/config/defaults.lua` fills in any missing defaults.
+3. `lua/vim-options.lua` applies the merged settings.
+4. Plugins load normally.
+5. `init.lua` loads optional `lua/user/after.lua`.
+
+This gives users a safe local override path while preserving the repository defaults for everyone else.
 
 ## API Compatibility Notes
 
