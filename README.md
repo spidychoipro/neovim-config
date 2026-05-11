@@ -1,209 +1,31 @@
 # Neovim Config
 
-[한국어 문서 보기](./README.ko.md)
+[![Neovim](https://img.shields.io/badge/Neovim-0.12.2-57A143?logo=neovim&logoColor=white)](https://neovim.io/)
+[![Plugin manager](https://img.shields.io/badge/plugin%20manager-lazy.nvim-2f81f7)](https://github.com/folke/lazy.nvim)
+[![Healthcheck](https://img.shields.io/badge/healthcheck-passing-brightgreen)](./docs/troubleshooting.md#health-checks)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)](#requirements)
+[![License](https://img.shields.io/badge/license-not%20specified-lightgrey)](#license)
 
-A clean, fast, IDE-like Neovim configuration focused on language tooling, external terminal execution, and low-friction editing.
+[한국어 문서](./README.ko.md) · [Install](./docs/installation.md) · [Usage](./docs/usage.md) · [Keymaps](./docs/keymaps.md) · [Architecture](./docs/architecture.md) · [Troubleshooting](./docs/troubleshooting.md)
 
-This setup treats Neovim as a control center and keeps program execution in a real external terminal.
+A fast, IDE-like Neovim configuration focused on language tooling, inline diagnostics, external terminal execution, and a predictable Windows-friendly workflow.
 
-## Features
+This setup treats Neovim as the editing control center while keeping program execution in a real terminal. It is designed to feel approachable for new users and still stay explicit enough for experienced Neovim users to modify safely.
 
-- LSP support for Bash, Python, Lua, PowerShell, C, and C++.
-- **Automatic Python Virtual Environment Detection** (.venv, venv, env).
-- External run system with `<leader>r`.
-- Windows Terminal + PowerShell execution on Windows.
-- Linux terminal execution through an available system terminal.
-- **Lightweight Git Integration** with Gitsigns.
-- **Enhanced Debugging UX** with Dap UI and auto-detection.
-- **Project-wide Navigation** with Trouble and Telescope.
-- **Fancy Inline Diagnostics** with `tiny-inline-diagnostic.nvim` (VS Code Error Lens style).
-- Formatting with `conform.nvim`.
-- Linting with `nvim-lint`.
-- Session management with `auto-session`.
-- Task history and optional structured workflows with `overseer.nvim`.
-- Discoverable keymaps with `which-key.nvim`.
-- PowerShell development support with `powershell.nvim`.
+## Highlights
 
-## Philosophy
-
-- **External terminal first**: Program execution happens in a real terminal, not a partial Neovim emulation.
-- **Lightweight & Fast**: No unnecessary bloat or "distro" feel.
-- **Stable & Predictable**: Minimal abstractions for maximum maintainability.
-- **IDE-like UX**: Modern features where they matter (DAP, Git, LSP).
-
-## Keybindings
-
-### General
-
-| Keybinding | Action |
+| Area | What you get |
 | --- | --- |
-| `<leader>r` | Run current file in an external terminal |
-| `<leader>f` | Format current file |
-| `<leader>/` | Live grep |
-| `<leader>?` | Buffer-local keymaps |
-| `<C-p>` | Find files |
-| `<C-n>` | Reveal file explorer |
+| Language tooling | LSP for Python, Lua, Bash, PowerShell, C, and C++ |
+| Diagnostics | E/W/I/H signs plus modern inline diagnostics with `tiny-inline-diagnostic.nvim` |
+| Runtime workflow | `<leader>r` runs the current file in an external terminal |
+| Windows support | PowerShell 7, Windows Terminal, Mason tool paths, and `.ps1` job cleanup |
+| Project navigation | Telescope, Neo-tree, Trouble, Gitsigns, and which-key |
+| Debugging and tasks | `nvim-dap`, `dap-ui`, `overseer.nvim`, and task history |
+| Sessions | Automatic save and restore with `auto-session` |
+| Modern APIs | Neovim 0.12-ready Tree-sitter, LSP, diagnostics, and `vim.uv` usage |
 
-### Git (`<leader>g`)
-
-| Keybinding | Action |
-| --- | --- |
-| `]c` | Next hunk |
-| `[c` | Previous hunk |
-| `<leader>gs` | Stage hunk |
-| `<leader>gr` | Reset hunk |
-| `<leader>gp` | Preview hunk |
-| `<leader>gb` | Blame line |
-
-### Debugging (`<leader>d`)
-
-| Keybinding | Action |
-| --- | --- |
-| `<leader>db` | Toggle breakpoint |
-| `<leader>dc` | Continue debug session |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>du` | Toggle DAP UI |
-| `<leader>dx` | Terminate debug session |
-
-### Tasks (`<leader>t`)
-
-| Keybinding | Action |
-| --- | --- |
-| `<leader>tr` | Run Overseer task |
-| `<leader>tb` | Build Overseer task |
-| `<leader>tt` | Toggle Overseer task list |
-| `<leader>ta` | Overseer task action |
-
-### Trouble (`<leader>x`)
-
-| Keybinding | Action |
-| --- | --- |
-| `<leader>xx` | Diagnostics (Trouble) |
-| `<leader>xX` | Buffer Diagnostics (Trouble) |
-| `<leader>xQ` | Quickfix List (Trouble) |
-| `<leader>xL` | Location List (Trouble) |
-| `<leader>cl` | LSP Symbols / References (Trouble) |
-
-## Python Virtual Environments
-
-The configuration automatically detects and uses Python virtual environments located in project root:
-- `.venv`
-- `venv`
-- `env`
-
-This works seamlessly for:
-- LSP (`basedpyright`)
-- DAP (`debugpy`)
-- External runner (`<leader>r`)
-
-## Overseer Workflow
-
-Overseer is used for task management. All tasks are configured to run as background jobs with captured output.
-
-- Pressing `Enter` in a task output window will close it.
-- Pressing `q` will close the task list or detail window.
-- No hanging processes are left behind after task completion.
-
-## External Run System
-
-`<leader>r` runs the current file in a new external terminal window.
-
-Supported filetypes:
-
-| Language | Command |
-| --- | --- |
-| Python | `py file.py` (Windows) or `python file.py` |
-| Lua | `lua file.lua` or `luajit file.lua` |
-| Bash | `bash file.sh` |
-| PowerShell | `pwsh file.ps1` |
-| C | `clang file.c -g -o file` then run |
-| C++ | `clang++ file.cpp -g -o file` then run |
-
-Execution rules:
-
-- Runs from the file directory.
-- Supports paths with spaces.
-- Does not block Neovim.
-- Keeps the terminal open after execution.
-
-## Requirements
-
-- Neovim v0.11+
-- Git
-- Node.js and npm
-- Python
-- PowerShell 7+ (`pwsh`)
-- Windows Terminal (`wt.exe`) on Windows
-- A system terminal on Linux, such as `x-terminal-emulator`, `gnome-terminal`, `konsole`, `alacritty`, `kitty`, `wezterm`, or `xterm`
-- `clang` and `clang++`
-- `bash` or `sh`
-
-Mason installs the editor-side tooling:
-
-- `lua-language-server`
-- `basedpyright`
-- `bash-language-server`
-- `powershell-editor-services`
-- `clangd`
-- `clang-format`
-- `debugpy`
-- `codelldb`
-- `black`
-- `isort`
-- `stylua`
-- `shellcheck`
-- `shfmt`
-
-## Installation
-
-### Windows
-
-Clone the repository:
-
-```powershell
-git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
-```
-
-If a config already exists, back it up first:
-
-```powershell
-Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup"
-git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
-```
-
-### Linux
-
-Clone the repository:
-
-```bash
-git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
-```
-
-If a config already exists, back it up first:
-
-```bash
-mv ~/.config/nvim ~/.config/nvim.backup
-git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
-```
-
-### Symlink Alternative
-
-Clone anywhere and symlink it into Neovim's config directory.
-
-Windows PowerShell:
-
-```powershell
-New-Item -ItemType SymbolicLink -Path "$env:LOCALAPPDATA\nvim" -Target "C:\path\to\neovim-config"
-```
-
-Linux:
-
-```bash
-ln -s /path/to/neovim-config ~/.config/nvim
-```
-
-## Screenshots
+## Preview
 
 ![Clean startup dashboard](assets/startup.png)
 
@@ -214,3 +36,108 @@ ln -s /path/to/neovim-config ~/.config/nvim
 ![Which-key leader popup](assets/which-key.png)
 
 ![Telescope file search](assets/telescope.png)
+
+## Quick Start
+
+### Windows
+
+```powershell
+Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
+git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
+nvim
+```
+
+### Linux
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null || true
+git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
+nvim
+```
+
+Lazy.nvim will bootstrap itself on first launch. Mason-managed tools are installed from inside Neovim.
+
+See the full guide: [docs/installation.md](./docs/installation.md).
+
+## Requirements
+
+| Requirement | Notes |
+| --- | --- |
+| Neovim | Tested with `v0.12.2` |
+| Git | Required for lazy.nvim and plugin installs |
+| Node.js + npm | Required by several LSP/tooling packages |
+| Python | Required for Python tooling and debug support |
+| PowerShell 7 (`pwsh`) | Recommended on Windows |
+| Windows Terminal (`wt.exe`) | Used by the external runner on Windows |
+| `clang` / `clang++` | Used for C and C++ builds/runs |
+| `bash` or `sh` | Used for shell scripts |
+
+Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, `bash-language-server`, `powershell-editor-services`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, and `shfmt`.
+
+## Everyday Commands
+
+| Key | Action |
+| --- | --- |
+| `<leader>r` | Run current file in an external terminal |
+| `<leader>f` | Format current file |
+| `<C-p>` | Find files |
+| `<leader>/` | Search project text |
+| `<C-n>` | Reveal file explorer |
+| `<leader>xx` | Open Trouble diagnostics |
+| `<leader>ll` | Toggle inline diagnostics |
+| `<leader>ld` | Disable inline diagnostics until the next file |
+| `<leader>uk` | Toggle screenkey |
+| `<leader>uo` | Disable screenkey until the next file |
+
+See the complete list: [docs/keymaps.md](./docs/keymaps.md).
+
+## Documentation
+
+| Document | Purpose |
+| --- | --- |
+| [Installation](./docs/installation.md) | Install, backup, and platform setup |
+| [Usage](./docs/usage.md) | Daily workflows, diagnostics, external runner, sessions |
+| [Keymaps](./docs/keymaps.md) | Complete keymap reference |
+| [Architecture](./docs/architecture.md) | Directory layout and module responsibilities |
+| [Troubleshooting](./docs/troubleshooting.md) | Health checks, common Windows issues, LSP log cleanup |
+| [Contributing](./CONTRIBUTING.md) | Safe contribution workflow and style expectations |
+
+## Repository Layout
+
+```text
+.
+|-- init.lua                  # Bootstrap lazy.nvim and load local modules
+|-- lua/
+|   |-- vim-options.lua       # Editor options and base keymaps
+|   |-- plugins/              # Plugin specs, setup, and keymaps
+|   |-- utils/                # Shared helpers for runners and virtualenvs
+|   `-- overseer/template/    # Task templates
+|-- assets/                   # README screenshots
+|-- docs/                     # User and maintainer documentation
+|-- lazy-lock.json            # Locked plugin revisions
+`-- pyrightconfig.json        # Python workspace exclusions
+```
+
+## Health Check
+
+Run this after updates or when something feels off:
+
+```vim
+:checkhealth
+```
+
+Useful targeted checks:
+
+```vim
+:checkhealth vim.deprecated vim.lsp nvim-treesitter screenkey lazy
+```
+
+Current local verification shows no deprecated Neovim API calls. The only known non-breaking warning can be a large `lsp.log` file if Neovim has been running for a long time.
+
+## Contributing
+
+Contributions are welcome, especially improvements that keep the setup clear, fast, and easy to recover. Before opening changes, please read [CONTRIBUTING.md](./CONTRIBUTING.md).
+
+## License
+
+No license file is currently included in this repository. Until a license is added, all rights remain with the repository owner.
