@@ -33,9 +33,6 @@ return {
         auto_restore = true,
         auto_restore_last_session = true,
         cwd_change_handling = true,
-        suppressed_dirs = {
-          vim.uv.os_homedir(),
-        },
         close_unsupported_windows = true,
         args_allow_files_auto_save = true,
         git_use_branch_name = true,
