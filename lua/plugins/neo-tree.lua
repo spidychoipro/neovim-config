@@ -45,13 +45,32 @@ local function protect_large_roots()
     return
   end
 
+  local status = git.status
   local status_async = git.status_async
+  local mark_gitignored = git.mark_gitignored
+
+  git.status = function(path, ...)
+    if is_slow_git_root(path) then
+      return
+    end
+
+    return status(path, ...)
+  end
+
   git.status_async = function(path, ...)
     if is_slow_git_root(path) then
       return
     end
 
     return status_async(path, ...)
+  end
+
+  git.mark_gitignored = function(state, ...)
+    if state and is_slow_git_root(state.path) then
+      return
+    end
+
+    return mark_gitignored(state, ...)
   end
 
   git._nvim_config_large_root_guard = true
@@ -91,7 +110,7 @@ return {
         max_lines = 5000,
       },
       filesystem = {
-        async_directory_scan = "always",
+        async_directory_scan = "auto",
         scan_mode = "shallow",
         bind_to_cwd = true,
         use_libuv_file_watcher = false,
