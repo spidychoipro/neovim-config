@@ -84,6 +84,7 @@ Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, 
 | `<C-p>` | Find files |
 | `<leader>/` | Search project text |
 | `<C-n>` | Reveal file explorer |
+| `<leader>hh` | Return to the dashboard |
 | `<leader>xx` | Open Trouble diagnostics |
 | `<leader>ll` | Toggle inline diagnostics |
 | `<leader>ld` | Disable inline diagnostics until the next file |

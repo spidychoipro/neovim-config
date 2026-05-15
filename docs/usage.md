@@ -7,9 +7,11 @@ This configuration aims to keep common workflows close to hand without hiding ho
 1. Open a project with `nvim`.
 2. Use `<C-p>` to find files.
 3. Use `<leader>/` to search project text.
-4. Use `<leader>r` to run the current file in an external terminal.
-5. Use `<leader>xx` when you want a diagnostics list.
-6. Use `:checkhealth` after upgrades or toolchain changes.
+4. Use `<C-n>` to reveal the current file in Neo-tree.
+5. Use `<leader>hh` to return to the dashboard.
+6. Use `<leader>r` to run the current file in an external terminal.
+7. Use `<leader>xx` when you want a diagnostics list.
+8. Use `:checkhealth` after upgrades or toolchain changes.
 
 ## Personal Preferences
 
@@ -36,6 +38,16 @@ The runner:
 - supports paths with spaces;
 - keeps Neovim responsive;
 - uses Windows Terminal on Windows when available.
+
+## File Explorer
+
+`<C-n>` opens Neo-tree and reveals the current file.
+
+Neo-tree keeps git status and diagnostics enabled, but directory scanning runs asynchronously so opening the tree does not block the UI. If the Windows user profile itself is a Git worktree, Neo-tree skips the expensive home-directory git status scan while keeping git status active in normal project repositories.
+
+## Persistent Undo
+
+Persistent undo is enabled with `vim.opt.undofile = true`, so undo history survives closing and reopening Neovim.
 
 ## Diagnostics
 
@@ -85,6 +97,8 @@ Single Python files outside a project use a temporary root to prevent `basedpyri
 ## Sessions
 
 `auto-session` saves and restores project sessions.
+
+The Windows home directory is excluded from automatic sessions so Neovim does not treat the whole user profile as one large project. Project folders still save and restore normally.
 
 | Key | Action |
 | --- | --- |

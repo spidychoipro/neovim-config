@@ -1,9 +1,10 @@
 return {
   "goolord/alpha-nvim",
   event = "VimEnter",
-  cond = function()
-    return vim.fn.argc() == 0
-  end,
+  cmd = "Alpha",
+  keys = {
+    { "<leader>hh", "<cmd>Alpha<CR>", desc = "Go to dashboard" },
+  },
   dependencies = {
     "nvim-tree/nvim-web-devicons",
   },
