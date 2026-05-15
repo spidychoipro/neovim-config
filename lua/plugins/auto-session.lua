@@ -3,6 +3,40 @@ return {
     "rmagatti/auto-session",
     lazy = false,
     config = function()
+      local dashboard_state_file = vim.fs.joinpath(vim.fn.stdpath("state"), "last-dashboard-state.json")
+
+      local function normalize_path(path)
+        return vim.fs.normalize(path):gsub("[/\\]+$", ""):lower()
+      end
+
+      local function current_cwd()
+        return normalize_path(vim.fn.getcwd())
+      end
+
+      local function last_exit_was_dashboard()
+        if vim.fn.filereadable(dashboard_state_file) == 0 then
+          return false
+        end
+
+        local ok, lines = pcall(vim.fn.readfile, dashboard_state_file)
+        if not ok or not lines[1] then
+          return false
+        end
+
+        local decoded_ok, state = pcall(vim.json.decode, lines[1])
+        return decoded_ok and state.dashboard == true and state.cwd == current_cwd()
+      end
+
+      local function remember_dashboard_state()
+        local state = {
+          cwd = current_cwd(),
+          dashboard = vim.bo.filetype == "alpha",
+        }
+
+        pcall(vim.fn.mkdir, vim.fs.dirname(dashboard_state_file), "p")
+        pcall(vim.fn.writefile, { vim.json.encode(state) }, dashboard_state_file)
+      end
+
       local function is_neo_tree_buffer(buf)
         if not vim.api.nvim_buf_is_valid(buf) then
           return false
@@ -28,10 +62,29 @@ return {
         end
       end
 
+      local should_start_on_dashboard = last_exit_was_dashboard()
+
+      vim.api.nvim_create_autocmd("VimLeavePre", {
+        callback = remember_dashboard_state,
+      })
+
+      if should_start_on_dashboard then
+        vim.api.nvim_create_autocmd("VimEnter", {
+          once = true,
+          callback = function()
+            if vim.fn.argc() == 0 then
+              vim.schedule(function()
+                pcall(vim.cmd.Alpha)
+              end)
+            end
+          end,
+        })
+      end
+
       require("auto-session").setup({
         auto_save = true,
-        auto_restore = true,
-        auto_restore_last_session = true,
+        auto_restore = not should_start_on_dashboard,
+        auto_restore_last_session = not should_start_on_dashboard,
         cwd_change_handling = true,
         close_unsupported_windows = true,
         args_allow_files_auto_save = true,
