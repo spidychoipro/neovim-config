@@ -20,8 +20,21 @@ return {
 
                 local text = " Copied "
                 local width = #text
-                local row = math.max(vim.o.lines - 4, 0)
-                local col = math.max(math.floor((vim.o.columns - width) / 2), 0)
+                local ui = vim.api.nvim_list_uis()[1] or {}
+                local editor_width = ui.width or vim.o.columns
+                local editor_height = ui.height or vim.o.lines
+                local row = math.max(editor_height - 5, 0)
+                local col = math.max(math.floor((editor_width - width) / 2), 0)
+
+                vim.api.nvim_set_hl(0, "YankNotifyNormal", {
+                    bg = "#44475a",
+                    bold = true,
+                    fg = "#f8f8f2",
+                })
+                vim.api.nvim_set_hl(0, "YankNotifyBorder", {
+                    bg = "#44475a",
+                    fg = "#bd93f9",
+                })
 
                 notice.buf = vim.api.nvim_create_buf(false, true)
                 vim.bo[notice.buf].bufhidden = "wipe"
@@ -34,12 +47,13 @@ return {
                     width = width,
                     height = 1,
                     style = "minimal",
+                    border = "rounded",
                     focusable = false,
-                    zindex = 60,
+                    zindex = 250,
                 })
 
                 vim.wo[notice.win].winblend = 0
-                vim.wo[notice.win].winhighlight = "Normal:DiagnosticVirtualTextInfo"
+                vim.wo[notice.win].winhighlight = "Normal:YankNotifyNormal,FloatBorder:YankNotifyBorder"
 
                 local fade_steps = { 15, 30, 45, 60, 75, 90 }
 
