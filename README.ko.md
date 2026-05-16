@@ -20,7 +20,8 @@
 | 진단 표시 | E/W/I/H sign과 `tiny-inline-diagnostic.nvim` inline 메시지 |
 | 실행 흐름 | `<leader>r`로 현재 파일을 외부 터미널에서 실행 |
 | Windows 지원 | PowerShell 7, Windows Terminal, Mason 경로, `.ps1` 종료 처리 |
-| 탐색 | Telescope, Neo-tree, Trouble, Gitsigns, which-key |
+| 탐색 | Telescope, Neo-tree, Trouble, Gitsigns, which-key, `flash.nvim` |
+| 편집 보조 | yank 알림과 `yanky.nvim` 기반의 쉬운 yank 기록 |
 | 디버깅/작업 | `nvim-dap`, `dap-ui`, `overseer.nvim` |
 | 세션 | `auto-session` 자동 저장/복구 |
 | 최신 API | Neovim 0.12 기준 Tree-sitter, LSP, diagnostic, `vim.uv` 사용 |
@@ -81,6 +82,8 @@ nvim
 | `<leader>/` | 프로젝트 텍스트 검색 |
 | `<C-n>` | 파일 탐색기 열기 |
 | `<leader>hh` | 대시보드로 돌아가기 |
+| `<leader>j` | Flash로 빠르게 이동 |
+| `<leader>p` | yank 기록 열기 |
 | `<leader>xx` | Trouble 진단 목록 |
 | `<leader>ll` | inline diagnostics 토글 |
 | `<leader>ld` | 다음 파일까지 inline diagnostics 끄기 |

@@ -9,9 +9,10 @@ This configuration aims to keep common workflows close to hand without hiding ho
 3. Use `<leader>/` to search project text.
 4. Use `<C-n>` to reveal the current file in Neo-tree.
 5. Use `<leader>hh` to return to the dashboard.
-6. Use `<leader>r` to run the current file in an external terminal.
-7. Use `<leader>xx` when you want a diagnostics list.
-8. Use `:checkhealth` after upgrades or toolchain changes.
+6. Use `<leader>j` when you want to jump to visible text quickly.
+7. Use `<leader>r` to run the current file in an external terminal.
+8. Use `<leader>xx` when you want a diagnostics list.
+9. Use `:checkhealth` after upgrades or toolchain changes.
 
 ## Personal Preferences
 
@@ -44,6 +45,40 @@ The runner:
 `<C-n>` opens Neo-tree and reveals the current file.
 
 Neo-tree keeps git status and diagnostics enabled. If the Windows user profile itself is a Git worktree, Neo-tree skips the expensive home-directory git status and gitignored scans while keeping git integration active in normal project repositories.
+
+## Fast Movement
+
+`flash.nvim` adds one beginner-friendly jump command without replacing normal Vim motions.
+
+| Key | Action |
+| --- | --- |
+| `<leader>j` | Start a Flash jump |
+
+Examples:
+
+- Press `<leader>j`, type `print`, then press the label shown beside the match to jump there.
+- In Visual mode, press `<leader>j` to extend the selection to a visible match.
+- In Operator-pending mode, use `d<leader>j` to delete up to a visible target.
+
+## Yank And Paste
+
+Yanking text now shows a small `Yanked` notification. If the notification system fails, Neovim shows an error message instead of failing silently.
+
+`yanky.nvim` keeps a simple yank history while preserving the familiar paste keys.
+
+| Key | Action |
+| --- | --- |
+| `p` | Paste after the cursor or selection |
+| `P` | Paste before the cursor or selection |
+| `<leader>p` | Open yank history |
+| `[y` | After a paste, replace it with the previous yank |
+| `]y` | After a paste, replace it with the next yank |
+
+Examples:
+
+- Yank one line with `yy`, move somewhere else, then press `p` to paste it.
+- Yank several different words or lines, press `<leader>p`, choose the older yank you want, and paste it from the history window.
+- Paste with `p`, then press `[y` to swap that pasted text to the previous yank. Press `]y` to move forward again.
 
 ## Persistent Undo
 
