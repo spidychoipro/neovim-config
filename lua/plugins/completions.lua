@@ -70,6 +70,14 @@ return {
           return
         end
 
+        -- Do not add parentheses when defining a function/method
+        local line_to_cursor = line:sub(1, col)
+        if line_to_cursor:match("def%s+" .. item.label .. "%s*$") -- Python
+            or line_to_cursor:match("function%s+" .. item.label .. "%s*$") -- Lua/JS
+        then
+          return
+        end
+
         vim.api.nvim_buf_set_text(bufnr, row - 1, col, row - 1, col, { '()' })
         vim.api.nvim_win_set_cursor(0, { row, col + 1 })
       end
@@ -164,7 +172,23 @@ return {
         }),
         sources = cmp.config.sources({
           { name = 'nvim_lsp' },      -- LSP 자동완성 (이게 핵심!)
-          { name = 'luasnip' },       -- 스니펫
+          {
+            name = 'luasnip',
+            entry_filter = function(entry, ctx)
+              if vim.bo.filetype == 'python' then
+                local label = entry.completion_item.label
+                local keywords = {
+                  'class', 'def', 'if', 'for', 'while', 'try', 'with', 'async', 'await',
+                  'return', 'yield', 'import', 'from', 'raise', 'except', 'finally'
+                }
+                for _, kw in ipairs(keywords) do
+                  if label == kw then return false end
+                end
+                if label:match("^__.*__$") then return false end
+              end
+              return true
+            end
+          },
         }, {
           { name = 'buffer' },        -- 버퍼에서 단어
           { name = 'path' },          -- 파일 경로
