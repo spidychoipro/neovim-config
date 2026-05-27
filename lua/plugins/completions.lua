@@ -36,6 +36,10 @@ return {
       local key_confirm_token = 0
       local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
 
+      local function strip_snippet_placeholder_text(body)
+        return body:gsub("%${(%d+):([^{}]*)}", "${%1}")
+      end
+
       local function can_jump(direction)
         if luasnip.locally_jumpable then
           return luasnip.locally_jumpable(direction)
@@ -126,7 +130,7 @@ return {
         },
         snippet = {
           expand = function(args)
-            luasnip.lsp_expand(args.body)  -- LuaSnip만 사용
+            luasnip.lsp_expand(strip_snippet_placeholder_text(args.body))  -- LuaSnip만 사용
           end,
         },
         window = {

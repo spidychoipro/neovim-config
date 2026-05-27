@@ -31,7 +31,66 @@ local diagnostic_config = {
     },
 }
 
+local function is_deprecated_diagnostic(diagnostic)
+    local diagnostic_tags = vim.lsp and vim.lsp.protocol and vim.lsp.protocol.DiagnosticTag or {}
+    local deprecated_tag = diagnostic_tags.Deprecated or 2
+
+    for _, tag in ipairs(diagnostic.tags or {}) do
+        if tag == deprecated_tag then
+            return true
+        end
+    end
+
+    return tostring(diagnostic.message or ""):lower():find("deprecated", 1, true) ~= nil
+end
+
+local function should_hide_diagnostic(bufnr, diagnostic)
+    local filetype = vim.bo[bufnr].filetype
+
+    if filetype ~= "c" and filetype ~= "cpp" and filetype ~= "objc" and filetype ~= "objcpp" then
+        return false
+    end
+
+    return is_deprecated_diagnostic(diagnostic)
+end
+
+local function install_diagnostic_filter()
+    if vim.diagnostic._nvim_config_learning_filter then
+        return
+    end
+
+    local original_set = vim.diagnostic.set
+
+    vim.diagnostic.set = function(namespace, bufnr, diagnostics, opts)
+        if type(bufnr) == "number" and type(diagnostics) == "table" then
+            diagnostics = vim.tbl_filter(function(diagnostic)
+                return not should_hide_diagnostic(bufnr, diagnostic)
+            end, diagnostics)
+        end
+
+        return original_set(namespace, bufnr, diagnostics, opts)
+    end
+
+    vim.diagnostic._nvim_config_learning_filter = true
+end
+
+local function clear_deprecated_strikethrough()
+    local ok, highlight = pcall(vim.api.nvim_get_hl, 0, {
+        name = "DiagnosticDeprecated",
+        link = false,
+    })
+
+    if not ok then
+        return
+    end
+
+    highlight.strikethrough = false
+    pcall(vim.api.nvim_set_hl, 0, "DiagnosticDeprecated", highlight)
+end
+
 local function apply_diagnostic_config()
+    install_diagnostic_filter()
+    clear_deprecated_strikethrough()
     vim.diagnostic.config(diagnostic_config)
     vim.diagnostic.enable(true)
 end
