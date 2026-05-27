@@ -175,17 +175,71 @@ return {
           {
             name = 'luasnip',
             entry_filter = function(entry, ctx)
-              if vim.bo.filetype == 'python' then
-                local label = entry.completion_item.label
-                local keywords = {
-                  'class', 'def', 'if', 'for', 'while', 'try', 'with', 'async', 'await',
-                  'return', 'yield', 'import', 'from', 'raise', 'except', 'finally'
+              local kind = entry:get_kind()
+              local label = entry.completion_item.label
+              local ft = vim.bo.filetype
+
+              -- Only filter snippets (this is what causes the "visual mode" selection)
+              if kind ~= require('cmp.types').lsp.CompletionItemKind.Snippet then
+                return true
+              end
+
+              -- 1. Python specific filters
+              if ft == 'python' then
+                -- Filter magic methods: __init__, __str__, etc.
+                if label:match("^__.*__$") then return false end
+                
+                -- Filter core keywords that are usually redundant with LSP
+                local py_keywords = {
+                  'class', 'def', 'if', 'else', 'elif', 'for', 'while', 'try', 'except', 'finally',
+                  'with', 'async', 'await', 'return', 'yield', 'import', 'from', 'raise', 'pass',
+                  'break', 'continue', 'lambda', 'global', 'nonlocal', 'assert', 'del'
                 }
-                for _, kw in ipairs(keywords) do
+                for _, kw in ipairs(py_keywords) do
                   if label == kw then return false end
                 end
-                if label:match("^__.*__$") then return false end
               end
+
+              -- 2. Lua specific filters
+              if ft == 'lua' then
+                local lua_keywords = {
+                  'local', 'function', 'if', 'then', 'else', 'elseif', 'end', 'for', 'while',
+                  'repeat', 'until', 'do', 'return', 'break'
+                }
+                for _, kw in ipairs(lua_keywords) do
+                  if label == kw then return false end
+                end
+              end
+
+              -- 3. C/C++ specific filters
+              if ft == 'c' or ft == 'cpp' then
+                local cpp_keywords = {
+                  'class', 'struct', 'union', 'enum', 'typedef', 'if', 'else', 'for', 'while',
+                  'do', 'switch', 'case', 'default', 'return', 'try', 'catch', 'namespace', 'public',
+                  'protected', 'private', 'template', 'typename', 'virtual', 'inline'
+                }
+                for _, kw in ipairs(cpp_keywords) do
+                  if label == kw then return false end
+                end
+              end
+
+              -- 4. Shell/Bash specific filters
+              if ft == 'sh' or ft == 'bash' then
+                local sh_keywords = {
+                  'if', 'then', 'else', 'elif', 'fi', 'for', 'while', 'until', 'do', 'done',
+                  'case', 'esac', 'function'
+                }
+                for _, kw in ipairs(sh_keywords) do
+                  if label == kw then return false end
+                end
+              end
+
+              -- 5. Global catch-all for very common triggers that are almost always annoying as snippets
+              local common = { 'if', 'else', 'for', 'while', 'return', 'class', 'function' }
+              for _, kw in ipairs(common) do
+                if label == kw then return false end
+              end
+
               return true
             end
           },
