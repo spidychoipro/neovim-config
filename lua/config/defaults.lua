@@ -31,7 +31,7 @@ local defaults = {
   },
   features = {
     auto_enable_inline_diagnostics = true,
-    auto_enable_screenkey = false,
+    auto_enable_screenkey = true,
   },
   keymaps = {
     clipboard_paste = true,
