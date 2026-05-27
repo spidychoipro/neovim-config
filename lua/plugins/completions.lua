@@ -32,8 +32,8 @@ return {
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
       local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-      local tab_confirming_completion = false
-      local tab_confirm_token = 0
+      local key_confirming_completion = false
+      local key_confirm_token = 0
       local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
 
       local function can_jump(direction)
@@ -83,30 +83,30 @@ return {
         filetypes = cmp_autopairs_filetypes,
       })
 
-      local function confirm_completion_with_tab()
-        tab_confirm_token = tab_confirm_token + 1
-        local token = tab_confirm_token
+      local function confirm_completion()
+        key_confirm_token = key_confirm_token + 1
+        local token = key_confirm_token
 
-        tab_confirming_completion = true
+        key_confirming_completion = true
         local confirmed = cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
 
         if confirmed then
           vim.defer_fn(function()
-            if tab_confirm_token == token then
-              tab_confirming_completion = false
+            if key_confirm_token == token then
+              key_confirming_completion = false
             end
           end, 1000)
         else
-          tab_confirming_completion = false
+          key_confirming_completion = false
         end
 
         return confirmed
       end
 
       cmp.event:on('confirm_done', function(event)
-        if tab_confirming_completion then
-          tab_confirm_token = tab_confirm_token + 1
-          tab_confirming_completion = false
+        if key_confirming_completion then
+          key_confirm_token = key_confirm_token + 1
+          key_confirming_completion = false
           cmp_confirm_done(event)
         end
       end)
@@ -132,19 +132,20 @@ return {
           ['<C-e>'] = cmp.mapping.abort(),
           ['<CR>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.abort()
-            end
-            fallback()
-          end, { 'i', 's' }),
-          ['<Tab>'] = cmp.mapping(function(fallback)
-            if cmp.visible() then
               if not cmp.get_selected_entry() then
                 cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
               end
 
-              if not confirm_completion_with_tab() then
+              if not confirm_completion() then
                 fallback()
               end
+            else
+              fallback()
+            end
+          end, { 'i', 's' }),
+          ['<Tab>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
             elseif can_jump(1) then
               luasnip.jump(1)
             else
