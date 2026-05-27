@@ -58,6 +58,8 @@ return {
         },
         config = function()
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
+            local python_capabilities = vim.deepcopy(capabilities)
+            python_capabilities.textDocument.completion.completionItem.snippetSupport = false
             local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
             local single_file_workspaces = {}
             local realtime_lsp_flags = {
@@ -198,7 +200,7 @@ return {
             vim.lsp.config("basedpyright", {
                 cmd = { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" },
                 filetypes = {"python"},
-                capabilities = capabilities,
+                capabilities = python_capabilities,
                 flags = realtime_lsp_flags,
                 root_markers = {},
                 workspace_required = false,
@@ -233,6 +235,15 @@ return {
                     basedpyright = {
                         analysis = {
                             diagnosticMode = "openFilesOnly",
+                            typeCheckingMode = "basic",
+                            diagnosticSeverityOverrides = {
+                                reportMissingParameterType = "none",
+                                reportUnknownArgumentType = "none",
+                                reportUnknownVariableType = "none",
+                                reportUnknownMemberType = "none",
+                                reportUnknownParameterType = "none",
+                                reportUnannotatedClassAttribute = "none",
+                            },
                             autoSearchPaths = false,
                             fileEnumerationTimeout = 1,
                             exclude = python_analysis_exclude,
