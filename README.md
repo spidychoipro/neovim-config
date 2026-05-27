@@ -152,6 +152,10 @@ Current local verification shows no deprecated Neovim API calls. The only known 
 
 Contributions are welcome, especially improvements that keep the setup clear, fast, and easy to recover. Before opening changes, please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 
+## Contributors
+
+- codex
+
 ## License
 
 No license file is currently included in this repository. Until a license is added, all rights remain with the repository owner.
