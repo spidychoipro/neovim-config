@@ -13,6 +13,34 @@ return {
             local group = vim.api.nvim_create_augroup("UserPowerShellEditorServices", { clear = true })
             local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
+            -- powershell.nvim still calls deprecated table-form vim.validate during setup.
+            local function with_legacy_validate_support(callback)
+                local original_validate = vim.validate
+
+                vim.validate = function(name, value, validator, optional, message)
+                    if type(name) == "table" and value == nil then
+                        local keys = vim.tbl_keys(name)
+                        table.sort(keys)
+
+                        for _, key in ipairs(keys) do
+                            local rule = name[key]
+                            original_validate(key, rule[1], rule[2], rule[3], rule[4])
+                        end
+
+                        return
+                    end
+
+                    return original_validate(name, value, validator, optional, message)
+                end
+
+                local ok, err = pcall(callback)
+                vim.validate = original_validate
+
+                if not ok then
+                    error(err, 0)
+                end
+            end
+
             local function disable_semantic_token_capability(lsp_capabilities)
                 if lsp_capabilities.textDocument then
                     lsp_capabilities.textDocument.semanticTokens = nil
@@ -79,13 +107,15 @@ return {
 
             vim.fn.delete(session_file)
 
-            require("powershell").setup({
-                bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
-                shell = shell ~= "" and shell or (is_windows and "pwsh.exe" or "pwsh"),
-                lsp_log_level = "Warning",
-                capabilities = capabilities,
-                on_attach = disable_semantic_tokens,
-            })
+            with_legacy_validate_support(function()
+                require("powershell").setup({
+                    bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
+                    shell = shell ~= "" and shell or (is_windows and "pwsh.exe" or "pwsh"),
+                    lsp_log_level = "Warning",
+                    capabilities = capabilities,
+                    on_attach = disable_semantic_tokens,
+                })
+            end)
 
             disable_semantic_token_capability(require("powershell.config").config.capabilities)
 
