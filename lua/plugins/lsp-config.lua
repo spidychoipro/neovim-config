@@ -64,6 +64,7 @@ return {
             local realtime_lsp_flags = {
                 debounce_text_changes = 80,
             }
+            local default_publish_diagnostics = vim.lsp.diagnostic.on_publish_diagnostics
             local python_analysis_exclude = {
                 "**/.git",
                 "**/.hg",
@@ -168,6 +169,48 @@ return {
                 }
 
                 return root
+            end
+
+            local function is_deprecated_diagnostic(diagnostic)
+                local diagnostic_tags = vim.lsp.protocol.DiagnosticTag or {}
+                local deprecated_tag = diagnostic_tags.Deprecated or 2
+
+                for _, tag in ipairs(diagnostic.tags or {}) do
+                    if tag == deprecated_tag then
+                        return true
+                    end
+                end
+
+                return tostring(diagnostic.message or ""):lower():find("deprecated", 1, true) ~= nil
+            end
+
+            local function should_hide_clangd_diagnostic(bufnr, diagnostic)
+                if type(bufnr) ~= "number" or not vim.api.nvim_buf_is_valid(bufnr) then
+                    return false
+                end
+
+                local filetype = vim.bo[bufnr].filetype
+                if filetype ~= "c" and filetype ~= "cpp" and filetype ~= "objc" and filetype ~= "objcpp" then
+                    return false
+                end
+
+                return is_deprecated_diagnostic(diagnostic)
+            end
+
+            local function publish_clangd_diagnostics(err, result, ctx, config)
+                if result and type(result.diagnostics) == "table" then
+                    local bufnr = ctx and ctx.bufnr or (result.uri and vim.uri_to_bufnr(result.uri))
+                    local diagnostics = vim.tbl_filter(function(diagnostic)
+                        return not should_hide_clangd_diagnostic(bufnr, diagnostic)
+                    end, result.diagnostics)
+
+                    if #diagnostics ~= #result.diagnostics then
+                        result = vim.deepcopy(result)
+                        result.diagnostics = diagnostics
+                    end
+                end
+
+                return default_publish_diagnostics(err, result, ctx, config)
             end
 
             vim.lsp.config("lua_ls", {
@@ -311,6 +354,9 @@ return {
                     "Makefile",
                 },
                 capabilities = capabilities,
+                handlers = {
+                    ["textDocument/publishDiagnostics"] = publish_clangd_diagnostics,
+                },
             })
 
             vim.api.nvim_create_autocmd("LspAttach", {

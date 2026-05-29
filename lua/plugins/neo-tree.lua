@@ -49,28 +49,34 @@ local function protect_large_roots()
   local status_async = git.status_async
   local mark_gitignored = git.mark_gitignored
 
-  git.status = function(path, ...)
-    if is_slow_git_root(path) then
-      return
-    end
+  if type(status) == "function" then
+    git.status = function(path, ...)
+      if is_slow_git_root(path) then
+        return
+      end
 
-    return status(path, ...)
+      return status(path, ...)
+    end
   end
 
-  git.status_async = function(path, ...)
-    if is_slow_git_root(path) then
-      return
-    end
+  if type(status_async) == "function" then
+    git.status_async = function(path, ...)
+      if is_slow_git_root(path) then
+        return
+      end
 
-    return status_async(path, ...)
+      return status_async(path, ...)
+    end
   end
 
-  git.mark_gitignored = function(state, ...)
-    if state and is_slow_git_root(state.path) then
-      return
-    end
+  if type(mark_gitignored) == "function" then
+    git.mark_gitignored = function(state, ...)
+      if state and is_slow_git_root(state.path) then
+        return
+      end
 
-    return mark_gitignored(state, ...)
+      return mark_gitignored(state, ...)
+    end
   end
 
   git._nvim_config_large_root_guard = true
