@@ -1,6 +1,17 @@
 local M = {}
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local venv_names = { ".venv", "venv", "env" }
+local python_project_markers = {
+    "pyrightconfig.json",
+    "basedpyrightconfig.json",
+    "pyproject.toml",
+    "requirements.txt",
+    "setup.py",
+    "setup.cfg",
+    "tox.ini",
+    ".python-version",
+}
 
 -- Strict validation for venv
 local function is_valid_venv(path)
@@ -18,38 +29,79 @@ local function is_valid_venv(path)
         python_exe = vim.fs.joinpath(path, "bin", "python")
     end
 
-    return vim.fn.executable(python_exe) == 1
-end
-
-function M.find_venv(workspace)
-    workspace = workspace or vim.fn.getcwd()
-
-    -- ONLY use venv if we are in a "Project" (strong markers exist)
-    -- This prevents accidental detection in home directory or simple script folders
-    local markers = { ".git", "pyproject.toml", "requirements.txt", "setup.py", ".python-version" }
-    local has_marker = false
-    for _, marker in ipairs(markers) do
-        if vim.fn.filereadable(vim.fs.joinpath(workspace, marker)) == 1
-            or vim.fn.isdirectory(vim.fs.joinpath(workspace, marker)) == 1
-        then
-            has_marker = true
-            break
-        end
+    if vim.fn.executable(python_exe) == 1 then
+        return python_exe
     end
 
-    if not has_marker then
+    return nil
+end
+
+local function normalize_path(path)
+    if not path or path == "" then
         return nil
     end
 
-    local venv_names = { ".venv", "venv", "env" }
+    return vim.fs.normalize(path):gsub("[/\\]+$", "")
+end
+
+local function parent_dir(path)
+    local parent = vim.fs.dirname(path)
+    if not parent or parent == path then
+        return nil
+    end
+
+    return parent
+end
+
+local function find_venv_in_dir(dir)
     for _, name in ipairs(venv_names) do
-        local venv_path = vim.fs.joinpath(workspace, name)
-        if is_valid_venv(venv_path) then
-            if is_windows then
-                return vim.fs.joinpath(venv_path, "Scripts", "python.exe")
-            else
-                return vim.fs.joinpath(venv_path, "bin", "python")
-            end
+        local python = is_valid_venv(vim.fs.joinpath(dir, name))
+        if python then
+            return python
+        end
+    end
+
+    return nil
+end
+
+local function find_python_project_root(start_dir)
+    return vim.fs.root(start_dir, python_project_markers)
+end
+
+local function collect_search_dirs(start_dir, project_root)
+    local dirs = {}
+    local dir = normalize_path(start_dir)
+    local root = normalize_path(project_root)
+
+    while dir do
+        table.insert(dirs, dir)
+
+        if not root or dir == root then
+            break
+        end
+
+        local parent = normalize_path(parent_dir(dir))
+        if not parent then
+            break
+        end
+
+        dir = parent
+    end
+
+    return dirs
+end
+
+function M.find_venv(workspace)
+    workspace = normalize_path(workspace or vim.fn.getcwd())
+    if not workspace then
+        return nil
+    end
+
+    local project_root = find_python_project_root(workspace)
+    for _, dir in ipairs(collect_search_dirs(workspace, project_root)) do
+        local python = find_venv_in_dir(dir)
+        if python then
+            return python
         end
     end
 
@@ -59,17 +111,22 @@ end
 function M.resolve_python(workspace)
     workspace = workspace or (vim.api.nvim_buf_get_name(0) ~= "" and vim.fs.dirname(vim.api.nvim_buf_get_name(0))) or vim.fn.getcwd()
 
-    -- USER PRIORITY FOR WINDOWS: Single-file execution first
+    local venv_path = M.find_venv(workspace)
+    if venv_path then
+        return {
+            path = venv_path,
+            source = "nearby local venv",
+        }
+    end
+
     if is_windows then
-        -- 1. py launcher (Primary, most reliable for global packages)
         if vim.fn.executable("py") == 1 then
             return {
                 path = "py",
-                source = "global py launcher (primary)",
+                source = "global py launcher",
             }
         end
 
-        -- 2. global python.exe
         if vim.fn.executable("python.exe") == 1 then
             return {
                 path = "python.exe",
@@ -78,16 +135,6 @@ function M.resolve_python(workspace)
         end
     end
 
-    -- 3. venv (Only if strong project markers exist)
-    local venv_path = M.find_venv(workspace)
-    if venv_path then
-        return {
-            path = venv_path,
-            source = "project venv",
-        }
-    end
-
-    -- Default fallback
     local default = is_windows and "python.exe" or "python"
     return {
         path = default,

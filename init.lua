@@ -23,6 +23,7 @@ local_config.load("user")
 require("config.defaults").setup()
 
 require("vim-options")
+require("utils.python-info").setup()
 require("lazy").setup("plugins", {
   rocks = {
     enabled = false,

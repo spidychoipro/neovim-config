@@ -61,6 +61,7 @@ return {
             capabilities.textDocument.completion.completionItem.snippetSupport = false
             local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
             local single_file_workspaces = {}
+            local python_workspace_dirs = {}
             local realtime_lsp_flags = {
                 debounce_text_changes = 80,
             }
@@ -259,12 +260,14 @@ return {
                     })
 
                     if project_root then
+                        python_workspace_dirs[project_root] = vim.fs.normalize(vim.fn.fnamemodify(fname, ":h"))
                         on_dir(project_root)
                         return
                     end
 
                     local git_root = vim.fs.root(bufnr, ".git")
                     if git_root and not is_expensive_python_root(git_root) then
+                        python_workspace_dirs[git_root] = vim.fs.normalize(vim.fn.fnamemodify(fname, ":h"))
                         on_dir(git_root)
                         return
                     end
@@ -297,14 +300,15 @@ return {
                 },
                 before_init = function(_, config)
                     local venv_utils = require("utils.venv")
-                    local python_path = venv_utils.get_python_path(config.root_dir)
+                    local single_file = single_file_workspaces[config.root_dir]
+                    local python_search_dir = (single_file and single_file.dir) or python_workspace_dirs[config.root_dir] or config.root_dir
+                    local python_path = venv_utils.get_python_path(python_search_dir)
                     config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
                         python = {
                             pythonPath = python_path,
                         },
                     })
 
-                    local single_file = single_file_workspaces[config.root_dir]
                     if single_file then
                         config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
                             basedpyright = {
