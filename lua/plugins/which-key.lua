@@ -6,11 +6,8 @@ return {
             preset = "modern",
             delay = 200,
             spec = {
-                { "<leader>c", group = "Code" },
                 { "<leader>d", group = "Debug" },
-                { "<leader>f", group = "Find" },
-                { "<leader>g", group = "Format" },
-                { "<leader>r", group = "Refactor" },
+                { "<leader>l", group = "LSP" },
                 { "<leader>s", group = "Session" },
                 { "<leader>t", group = "Tasks" },
             },

@@ -17,7 +17,7 @@ vim.opt.updatetime = 200
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.undofile = true
-vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,localoptions"
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
@@ -74,3 +74,7 @@ vim.keymap.set("i", "<C-S-v>", function()
   local text = vim.fn.getreg('+')
   vim.api.nvim_put({text}, 'c', true, true)
 end)
+
+vim.keymap.set("n", "<leader>r", function()
+  require("utils.external-runner").run_current_file()
+end, { desc = "Run current file" })

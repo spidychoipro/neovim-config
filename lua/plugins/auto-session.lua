@@ -5,7 +5,7 @@ return {
         config = function()
             require("auto-session").setup({
                 git_use_branch_name = true,
-                bypass_save_filetypes = { "alpha" },
+                bypass_save_filetypes = { "alpha","neo-tree" },
                 session_lens = {
                     picker = "telescope",
                     load_on_setup = true,
