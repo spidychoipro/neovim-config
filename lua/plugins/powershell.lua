@@ -11,6 +11,20 @@ return {
             local shell = is_windows and vim.fn.exepath("pwsh.exe") or vim.fn.exepath("pwsh")
             local powershell_term_jobs = {}
             local group = vim.api.nvim_create_augroup("UserPowerShellEditorServices", { clear = true })
+            local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+            local function disable_semantic_token_capability(lsp_capabilities)
+                if lsp_capabilities.textDocument then
+                    lsp_capabilities.textDocument.semanticTokens = nil
+                end
+            end
+
+            local function disable_semantic_tokens(client, bufnr)
+                client.server_capabilities.semanticTokensProvider = nil
+                vim.bo[bufnr].syntax = ""
+            end
+
+            disable_semantic_token_capability(capabilities)
 
             local function track_term_job(args)
                 local data = args.data or {}
@@ -69,8 +83,11 @@ return {
                 bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
                 shell = shell ~= "" and shell or (is_windows and "pwsh.exe" or "pwsh"),
                 lsp_log_level = "Warning",
-                capabilities = require("cmp_nvim_lsp").default_capabilities(),
+                capabilities = capabilities,
+                on_attach = disable_semantic_tokens,
             })
+
+            disable_semantic_token_capability(require("powershell.config").config.capabilities)
 
             vim.api.nvim_create_autocmd("User", {
                 group = group,
