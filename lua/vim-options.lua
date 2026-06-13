@@ -31,6 +31,7 @@ if is_windows then
     "C:\\Program Files\\Git\\usr\\bin",
     "C:\\Program Files\\7-Zip",
     vim.fn.expand("$LOCALAPPDATA\\Microsoft\\WinGet\\Links"),
+    vim.fn.expand("$LOCALAPPDATA\\Microsoft\\WindowsApps"),
     vim.fn.expand("$APPDATA\\npm"),
     vim.fn.expand("$APPDATA\\Python\\Python314\\Scripts"),
   }

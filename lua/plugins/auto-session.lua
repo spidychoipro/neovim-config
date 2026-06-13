@@ -4,8 +4,14 @@ return {
         lazy = false,
         config = function()
             require("auto-session").setup({
+                auto_save = true,
+                auto_restore = true,
+                auto_restore_last_session = false,
+                cwd_change_handling = true,
+                close_unsupported_windows = true,
+                args_allow_files_auto_save = true,
                 git_use_branch_name = true,
-                bypass_save_filetypes = { "alpha","neo-tree" },
+                bypass_save_filetypes = { "alpha", "neo-tree" },
                 session_lens = {
                     picker = "telescope",
                     load_on_setup = true,

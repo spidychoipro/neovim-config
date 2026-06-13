@@ -49,6 +49,11 @@ local function find_wt()
     if executable("wt") then
         return "wt"
     end
+
+    local windows_apps_wt = vim.fn.expand("$LOCALAPPDATA\\Microsoft\\WindowsApps\\wt.exe")
+    if vim.fn.filereadable(windows_apps_wt) == 1 then
+        return windows_apps_wt
+    end
 end
 
 local function find_linux_shell()
@@ -177,21 +182,60 @@ local function open_windows_terminal(info, command)
         return
     end
 
-    local script = "Set-Location -LiteralPath " .. ps_quote(info.dir)
-        .. "; " .. command
-        .. "; Write-Host ''; Read-Host 'Press Enter to close'"
+    local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
+    local script_id = tostring((vim.uv or vim.loop).hrtime())
+    local runner_script = vim.fs.joinpath(script_dir, "run-" .. script_id .. ".ps1")
+    local launcher_script = vim.fs.joinpath(script_dir, "launch-" .. script_id .. ".ps1")
+    vim.fn.mkdir(script_dir, "p")
+
+    local runner_lines = {
+        "$Host.UI.RawUI.WindowTitle = 'Run current file'",
+        "Set-Location -LiteralPath " .. ps_quote(info.dir),
+        command,
+        "Write-Host ''",
+        "Read-Host 'Press Enter to close'",
+        "Remove-Item -LiteralPath " .. ps_quote(runner_script) .. " -Force -ErrorAction SilentlyContinue",
+        "Remove-Item -LiteralPath " .. ps_quote(launcher_script) .. " -Force -ErrorAction SilentlyContinue",
+    }
+
+    local launcher_lines = {
+        "$arguments = @(",
+        "    '-w',",
+        "    'new',",
+        "    'pwsh.exe',",
+        "    '-NoLogo',",
+        "    '-NoProfile',",
+        "    '-ExecutionPolicy',",
+        "    'Bypass',",
+        "    '-NoExit',",
+        "    '-File',",
+        "    " .. ps_quote(runner_script),
+        ")",
+        "Start-Process -FilePath " .. ps_quote(wt) .. " -ArgumentList $arguments",
+        "Start-Sleep -Milliseconds 500",
+        "Remove-Item -LiteralPath " .. ps_quote(launcher_script) .. " -Force -ErrorAction SilentlyContinue",
+    }
+
+    if vim.fn.writefile(runner_lines, runner_script) ~= 0
+        or vim.fn.writefile(launcher_lines, launcher_script) ~= 0
+    then
+        notify("Failed to create external runner scripts", vim.log.levels.ERROR)
+        return
+    end
 
     local job = vim.fn.jobstart({
-        wt,
-        "-w",
-        "new",
+        "cmd.exe",
+        "/d",
+        "/c",
+        "start",
+        "",
         "pwsh.exe",
         "-NoLogo",
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
-        "-Command",
-        script,
+        "-File",
+        launcher_script,
     }, { detach = true })
 
     if job <= 0 then
