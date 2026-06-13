@@ -96,9 +96,11 @@ end
 local function windows_command(info)
     local file = ps_quote(info.file)
     local output = ps_quote(vim.fs.joinpath(info.dir, info.stem .. ".exe"))
+    local venv_utils = require("utils.venv")
 
     if info.filetype == "python" then
-        return "& python " .. file
+        local python = venv_utils.get_python_path()
+        return "& " .. ps_quote(python) .. " " .. file
     end
 
     if info.filetype == "lua" then
@@ -133,9 +135,11 @@ end
 local function linux_command(info)
     local file = sh_quote(info.file)
     local output = sh_quote(vim.fs.joinpath(info.dir, info.stem))
+    local venv_utils = require("utils.venv")
 
     if info.filetype == "python" then
-        return "python " .. file
+        local python = venv_utils.get_python_path()
+        return sh_quote(python) .. " " .. file
     end
 
     if info.filetype == "lua" then
