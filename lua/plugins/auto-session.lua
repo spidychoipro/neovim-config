@@ -68,19 +68,6 @@ return {
         callback = remember_dashboard_state,
       })
 
-      if should_start_on_dashboard then
-        vim.api.nvim_create_autocmd("VimEnter", {
-          once = true,
-          callback = function()
-            if vim.fn.argc() == 0 then
-              vim.schedule(function()
-                pcall(vim.cmd.Alpha)
-              end)
-            end
-          end,
-        })
-      end
-
       require("auto-session").setup({
         auto_save = true,
         auto_restore = not should_start_on_dashboard,
