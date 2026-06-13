@@ -1,174 +1,31 @@
-# Neovim 설정 (Neovim Config)
+# Neovim 설정
 
-[English Documents](./README.md)
+[![Neovim](https://img.shields.io/badge/Neovim-0.12.2-57A143?logo=neovim&logoColor=white)](https://neovim.io/)
+[![Plugin manager](https://img.shields.io/badge/plugin%20manager-lazy.nvim-2f81f7)](https://github.com/folke/lazy.nvim)
+[![Healthcheck](https://img.shields.io/badge/healthcheck-passing-brightgreen)](./docs/troubleshooting.md#health-checks)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-blue)](./README.md#requirements)
+[![License](https://img.shields.io/badge/license-not%20specified-lightgrey)](./README.md#license)
 
-언어 도구 지원, 외부 터미널 실행, 그리고 낮은 진입 장벽의 편집 환경에 초점을 맞춘 깔끔하고 빠르며 IDE와 같은 Neovim 설정입니다.
+[English README](./README.md) · [설치](./docs/installation.md) · [사용법](./docs/usage.md) · [단축키](./docs/keymaps.md) · [구조](./docs/architecture.md) · [문제 해결](./docs/troubleshooting.md)
 
-이 설정은 Neovim을 컨트롤 센터로 취급하며, 프로그램 실행은 실제 외부 터미널에서 유지하도록 설계되었습니다.
+빠르고 예측 가능한 IDE 스타일 Neovim 설정입니다. Python, Lua, Bash, PowerShell, C, C++ 개발을 중심으로 LSP, inline diagnostics, 외부 터미널 실행, Windows 친화적인 작업 흐름을 제공합니다.
+
+이 설정은 Neovim을 편집의 중심으로 사용하되, 프로그램 실행은 실제 외부 터미널에서 처리하도록 설계되었습니다.
 
 ## 주요 기능
 
-- **LSP 지원**: Bash, Python, Lua, PowerShell, C, C++ 지원.
-- **자동 Python 가상 환경 감지**: (.venv, venv, env).
-- **외부 실행 시스템**: `<leader>r`을 통한 즉각적인 외부 터미널 실행.
-- **Windows 최적화**: Windows Terminal 및 PowerShell(`pwsh`) 연동.
-- **Linux 지원**: 시스템 기본 터미널을 통한 실행 지원.
-- **경량 Git 연동**: Gitsigns를 통한 Hunk 관리 및 블레임 지원.
-- **향상된 디버깅 환경**: Dap UI 및 자동 감지 지원.
-- **프로젝트 전역 탐색**: Trouble 및 Telescope 통합.
-- **화려한 인라인 진단**: `tiny-inline-diagnostic.nvim` (VS Code Error Lens 스타일).
-- **포맷팅**: `conform.nvim`을 통한 자동 코드 정렬.
-- **린팅**: `nvim-lint`를 통한 정적 코드 분석.
-- **세션 관리**: `auto-session`을 통한 작업 상태 자동 저장 및 복구.
-- **작업 관리**: `overseer.nvim`을 통한 빌드 및 테스트 자동화.
-- **직관적 단축키**: `which-key.nvim`을 통한 가시적인 단축키 가이드.
-- **PowerShell 최적화**: `powershell.nvim`을 통한 강력한 스크립팅 환경.
-
-## 철학
-
-- **외부 터미널 우선**: 내부 터미널의 복잡함 대신 실제 터미널 환경을 활용합니다.
-- **최소주의 및 강력함**: 불필요한 기능은 배제하되 필요한 기능은 강력하게 지원합니다.
-- **안정성 및 예측 가능성**: 유지보수를 위해 복잡한 추상화를 최소화합니다.
-- **비대하지 않은 IDE 환경**: IDE의 편리함을 제공하되 Neovim 본연의 속도를 유지합니다.
-
-## 단축키 (Keybindings)
-
-### 일반 (General)
-
-| 단축키 | 동작 |
+| 영역 | 내용 |
 | --- | --- |
-| `<leader>r` | 외부 터미널에서 현재 파일 실행 |
-| `<leader>f` | 현재 파일 포맷팅 (코드 정렬) |
-| `<leader>/` | 전체 텍스트 검색 (Live Grep) |
-| `<leader>?` | 버퍼 로컬 단축키 확인 |
-| `<C-p>` | 파일 검색 |
-| `<C-n>` | 파일 탐색기 열기/닫기 |
+| 언어 도구 | Python, Lua, Bash, PowerShell, C, C++ LSP |
+| 진단 표시 | E/W/I/H sign과 `tiny-inline-diagnostic.nvim` inline 메시지 |
+| 실행 흐름 | `<leader>r`로 현재 파일을 외부 터미널에서 실행 |
+| Windows 지원 | PowerShell 7, Windows Terminal, Mason 경로, `.ps1` 종료 처리 |
+| 탐색 | Telescope, Neo-tree, Trouble, Gitsigns, which-key |
+| 디버깅/작업 | `nvim-dap`, `dap-ui`, `overseer.nvim` |
+| 세션 | `auto-session` 자동 저장/복구 |
+| 최신 API | Neovim 0.12 기준 Tree-sitter, LSP, diagnostic, `vim.uv` 사용 |
 
-### Git (`<leader>g`)
-
-| 단축키 | 동작 |
-| --- | --- |
-| `]c` | 다음 Hunk로 이동 |
-| `[c` | 이전 Hunk로 이동 |
-| `<leader>gs` | Hunk 스테이징 |
-| `<leader>gr` | Hunk 리셋 |
-| `<leader>gp` | Hunk 미리보기 |
-| `<leader>gb` | 라인 블레임(Blame) 확인 |
-
-### 디버깅 (`<leader>d`)
-
-| 단축키 | 동작 |
-| --- | --- |
-| `<leader>db` | 브레이크포인트 토글 |
-| `<leader>dc` | 디버그 세션 계속(Continue) |
-| `<leader>di` | Step Into |
-| `<leader>do` | Step Over |
-| `<leader>du` | DAP UI 토글 |
-| `<leader>dx` | 디버그 세션 종료 |
-
-### 작업 (`<leader>t`)
-
-| 단축키 | 동작 |
-| --- | --- |
-| `<leader>tr` | Overseer 작업 실행 |
-| `<leader>tb` | Overseer 빌드 작업 실행 |
-| `<leader>tt` | Overseer 작업 목록 토글 |
-| `<leader>ta` | Overseer 작업 액션 |
-
-### Trouble (`<leader>x`)
-
-| 단축키 | 동작 |
-| --- | --- |
-| `<leader>xx` | 진단 정보 (Trouble) |
-| `<leader>xX` | 버퍼 진단 정보 (Trouble) |
-| `<leader>xQ` | Quickfix 목록 (Trouble) |
-| `<leader>xL` | Location 목록 (Trouble) |
-| `<leader>cl` | LSP 심볼 / 참조 (Trouble) |
-
-## Python 가상 환경 (Virtual Environments)
-
-이 설정은 프로젝트 루트에 있는 Python 가상 환경을 자동으로 감지하고 사용합니다:
-- `.venv`
-- `venv`
-- `env`
-
-다음 기능들과 연동됩니다:
-- LSP (`basedpyright`)
-- DAP (`debugpy`)
-- 외부 실행기 (`<leader>r`)
-
-## Overseer 워크플로우
-
-Overseer는 작업 관리에 사용됩니다. 모든 작업은 백그라운드 작업으로 실행되며 출력이 캡처됩니다.
-
-- 작업 출력 창에서 `Enter`를 누르면 창이 닫힙니다.
-- `q`를 누르면 작업 목록이나 상세 창이 닫힙니다.
-- 작업 완료 후 불필요한 프로세스가 남지 않습니다.
-
-## 외부 실행 시스템 (External Run System)
-
-`<leader>r`을 누르면 새 외부 터미널 창에서 현재 파일이 실행됩니다.
-
-지원되는 파일 형식:
-
-| 언어 | 실행 명령 |
-| --- | --- |
-| Python | `py file.py` (Windows) 또는 `python file.py` |
-| Lua | `lua` 또는 `luajit` 기반 실행 |
-| Bash | `bash file.sh` |
-| PowerShell | `pwsh file.ps1` |
-| C | `clang` 컴파일 후 실행 |
-| C++ | `clang++` 컴파일 후 실행 |
-
-실행 규칙:
-- 파일이 위치한 디렉토리에서 실행됩니다.
-- 공백이 포함된 경로를 지원합니다.
-- Neovim을 차단(Block)하지 않습니다.
-- 실행 실패 시에만 터미널이 열려 있고, 성공 시 자동으로 닫힙니다.
-
-## 요구 사항
-
-- Neovim v0.11 이상
-- Git
-- Node.js 및 npm
-- Python
-- PowerShell 7 이상 (`pwsh`)
-- Windows Terminal (`wt.exe`, Windows 전용)
-- Linux 터미널 (`x-terminal-emulator`, `gnome-terminal`, `konsole`, `alacritty`, `kitty`, `wezterm`, `xterm` 등)
-- `clang` 및 `clang++`
-- `bash` 또는 `sh`
-
-Mason을 통해 다음 도구들이 자동/수동으로 관리됩니다:
-- `lua-language-server`, `basedpyright`, `bash-language-server`, `powershell-editor-services`, `clangd`
-- `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, `shfmt`
-
-## 설치 방법
-
-### Windows
-
-```powershell
-git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
-```
-
-기존 설정이 있다면 먼저 백업하세요:
-```powershell
-Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup"
-git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
-```
-
-### Linux
-
-```bash
-git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
-```
-
-기존 설정이 있다면 먼저 백업하세요:
-```bash
-mv ~/.config/nvim ~/.config/nvim.backup
-git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
-```
-
-## 스크린샷
+## 미리보기
 
 ![Clean startup dashboard](assets/startup.png)
 
@@ -179,3 +36,95 @@ git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
 ![Which-key leader popup](assets/which-key.png)
 
 ![Telescope file search](assets/telescope.png)
+
+## 빠른 설치
+
+### Windows
+
+```powershell
+Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
+git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
+nvim
+```
+
+### Linux
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null || true
+git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
+nvim
+```
+
+첫 실행 시 `lazy.nvim`이 자동으로 bootstrap됩니다. 자세한 내용은 [docs/installation.md](./docs/installation.md)를 참고하세요.
+
+## 요구 사항
+
+| 도구 | 설명 |
+| --- | --- |
+| Neovim | `v0.12.2`에서 확인 |
+| Git | 플러그인 설치에 필요 |
+| Node.js / npm | 여러 LSP 도구에 필요 |
+| Python | Python LSP, DAP, 실행기에 필요 |
+| PowerShell 7 (`pwsh`) | Windows에서 권장 |
+| Windows Terminal (`wt.exe`) | Windows 외부 실행기에 사용 |
+| `clang` / `clang++` | C/C++ 빌드 및 실행 |
+| `bash` 또는 `sh` | Shell script 실행 |
+
+## 자주 쓰는 단축키
+
+| 단축키 | 동작 |
+| --- | --- |
+| `<leader>r` | 현재 파일 외부 터미널 실행 |
+| `<leader>f` | 현재 파일 포맷 |
+| `<C-p>` | 파일 검색 |
+| `<leader>/` | 프로젝트 텍스트 검색 |
+| `<C-n>` | 파일 탐색기 열기 |
+| `<leader>xx` | Trouble 진단 목록 |
+| `<leader>ll` | inline diagnostics 토글 |
+| `<leader>ld` | 다음 파일까지 inline diagnostics 끄기 |
+| `<leader>uk` | screenkey 토글 |
+| `<leader>uo` | 다음 파일까지 screenkey 끄기 |
+
+전체 단축키는 [docs/keymaps.md](./docs/keymaps.md)에 정리되어 있습니다.
+
+## 문서
+
+| 문서 | 내용 |
+| --- | --- |
+| [Installation](./docs/installation.md) | 설치, 백업, 플랫폼별 준비 |
+| [Usage](./docs/usage.md) | 일상적인 사용 흐름 |
+| [Keymaps](./docs/keymaps.md) | 전체 단축키 |
+| [Architecture](./docs/architecture.md) | 디렉터리 구조와 모듈 역할 |
+| [Troubleshooting](./docs/troubleshooting.md) | healthcheck와 문제 해결 |
+| [Contributing](./CONTRIBUTING.md) | 변경 시 지켜야 할 기준 |
+
+## 저장소 구조
+
+```text
+.
+|-- init.lua                  # lazy.nvim bootstrap
+|-- lua/
+|   |-- vim-options.lua       # 기본 옵션과 공통 단축키
+|   |-- plugins/              # 플러그인 설정
+|   |-- utils/                # 실행기와 virtualenv helper
+|   `-- overseer/template/    # 작업 템플릿
+|-- assets/                   # README 이미지
+|-- docs/                     # 문서
+|-- lazy-lock.json            # 플러그인 잠금 파일
+`-- pyrightconfig.json        # Python workspace 제외 설정
+```
+
+## Healthcheck
+
+업데이트 후에는 아래 명령으로 상태를 확인하세요.
+
+```vim
+:checkhealth
+:checkhealth vim.deprecated vim.lsp nvim-treesitter screenkey lazy
+```
+
+현재 로컬 검증 기준으로 설정 소유 deprecated API 경고는 없습니다.
+
+## 라이선스
+
+현재 저장소에는 `LICENSE` 파일이 포함되어 있지 않습니다. 라이선스가 추가되기 전까지 권리는 저장소 소유자에게 있습니다.
