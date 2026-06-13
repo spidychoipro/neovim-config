@@ -6,7 +6,7 @@ return {
             require("auto-session").setup({
                 auto_save = true,
                 auto_restore = true,
-                auto_restore_last_session = false,
+                auto_restore_last_session = true,
                 cwd_change_handling = true,
                 close_unsupported_windows = true,
                 args_allow_files_auto_save = true,
