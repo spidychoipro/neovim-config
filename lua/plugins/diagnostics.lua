@@ -123,9 +123,13 @@ return {
 
             apply_diagnostic_config()
 
-            vim.schedule(function()
+            local function enable_inline_diagnostics(bufnr)
                 tiny_diag.enable()
-                refresh_inline_diagnostics()
+                refresh_inline_diagnostics(bufnr)
+            end
+
+            vim.schedule(function()
+                enable_inline_diagnostics()
             end)
 
             vim.api.nvim_create_autocmd({
@@ -144,6 +148,13 @@ return {
                 end,
             })
 
+            vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+                group = vim.api.nvim_create_augroup("AutoEnableInlineDiagnostics", { clear = true }),
+                callback = function(args)
+                    enable_inline_diagnostics(args.buf)
+                end,
+            })
+
             vim.keymap.set("n", "<leader>e", function()
                 vim.diagnostic.open_float()
             end, { desc = "Line Diagnostics" })
@@ -154,7 +165,7 @@ return {
 
             vim.keymap.set("n", "<leader>ld", function()
                 tiny_diag.disable()
-            end, { desc = "Disable Inline Diagnostics" })
+            end, { desc = "Disable Inline Diagnostics Until Next File" })
         end,
     },
 }
