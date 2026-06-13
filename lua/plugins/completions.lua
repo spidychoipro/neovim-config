@@ -1,9 +1,12 @@
+local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+
 return {
   {
     "hrsh7th/cmp-nvim-lsp",
   },
   {
     "L3MON4D3/LuaSnip",
+    build = is_windows and nil or "make install_jsregexp",
     dependencies = {
       "saadparwaiz1/cmp_luasnip",
       "rafamadriz/friendly-snippets",
