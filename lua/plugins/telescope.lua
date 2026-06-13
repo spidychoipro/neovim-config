@@ -2,13 +2,19 @@ return {
   {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.8",
+    cmd = "Telescope",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
     },
+    keys = {
+      { "<C-p>", "<cmd>Telescope find_files<CR>", desc = "Find files" },
+      { "<leader>/", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
+      { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find buffers" },
+      { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Find help" },
+    },
     config = function()
       local telescope = require("telescope")
-      local actions = require("telescope.actions")
       local trouble = require("trouble.sources.telescope")
 
       telescope.setup({
@@ -26,12 +32,6 @@ return {
       })
 
       telescope.load_extension("ui-select")
-
-      local builtin = require("telescope.builtin")
-      vim.keymap.set("n", "<C-p>", builtin.find_files, { desc = "Find files" })
-      vim.keymap.set("n", "<leader>/", builtin.live_grep, { desc = "Live grep" })
-      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Find help" })
     end,
   },
 }

@@ -3,9 +3,11 @@ local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 return {
   {
     "hrsh7th/cmp-nvim-lsp",
+    lazy = true,
   },
   {
     "L3MON4D3/LuaSnip",
+    event = "InsertEnter",
     build = is_windows and nil or "make install_jsregexp",
     dependencies = {
       "saadparwaiz1/cmp_luasnip",
@@ -17,9 +19,13 @@ return {
   },
   {
     "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
     dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
       "hrsh7th/cmp-buffer",
       "hrsh7th/cmp-path",
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
     },
     config = function()
       local cmp = require 'cmp'

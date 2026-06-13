@@ -1,12 +1,14 @@
 return {
     {
         "mason-org/mason.nvim",
+        cmd = "Mason",
         config = function()
             require("mason").setup()
         end,
     },
     {
         "WhoIsSethDaniel/mason-tool-installer.nvim",
+        event = "VeryLazy",
         dependencies = {
             "mason-org/mason.nvim",
         },
@@ -35,6 +37,10 @@ return {
     },
     {
         "williamboman/mason-lspconfig.nvim",
+        event = { "BufReadPre", "BufNewFile" },
+        dependencies = {
+            "mason-org/mason.nvim",
+        },
         config = function()
             require("mason-lspconfig").setup({
                 ensure_installed = { "lua_ls", "basedpyright", "bashls", "clangd" },
@@ -44,6 +50,12 @@ return {
     },
     {
         "neovim/nvim-lspconfig",
+        event = { "BufReadPre", "BufNewFile" },
+        dependencies = {
+            "mason-org/mason.nvim",
+            "williamboman/mason-lspconfig.nvim",
+            "hrsh7th/cmp-nvim-lsp",
+        },
         config = function()
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
             local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
@@ -85,10 +97,25 @@ return {
                 root_markers = { "pyproject.toml", "setup.py", ".git", "venv", ".venv", "env" },
                 filetypes = { "python" },
                 capabilities = capabilities,
-                on_init = function(client)
+                settings = {
+                    basedpyright = {
+                        analysis = {
+                            diagnosticMode = "openFilesOnly",
+                            exclude = {
+                                "**/.git",
+                                "**/.venv",
+                                "**/venv",
+                                "**/env",
+                                "**/__pycache__",
+                                "**/node_modules",
+                            },
+                        },
+                    },
+                },
+                before_init = function(_, config)
                     local venv_utils = require("utils.venv")
-                    local python_path = venv_utils.get_python_path(client.config.root_dir)
-                    client.config.settings = vim.tbl_deep_extend("force", client.config.settings or {}, {
+                    local python_path = venv_utils.get_python_path(config.root_dir)
+                    config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
                         python = {
                             pythonPath = python_path,
                         },

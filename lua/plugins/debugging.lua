@@ -1,9 +1,18 @@
 return {
 	{
 		"nvim-neotest/nvim-nio",
+		lazy = true,
 	},
 	{
 		"mfussenegger/nvim-dap",
+		keys = {
+			{ "<Leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle breakpoint" },
+			{ "<Leader>dc", function() require("dap").continue() end, desc = "Continue debug session" },
+			{ "<Leader>di", function() require("dap").step_into() end, desc = "Step into" },
+			{ "<Leader>do", function() require("dap").step_over() end, desc = "Step over" },
+			{ "<Leader>du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+			{ "<Leader>dx", function() require("dap").terminate() end, desc = "Terminate debug session" },
+		},
 		dependencies = {
 			"nvim-neotest/nvim-nio",
 			"rcarriga/nvim-dap-ui",
@@ -98,13 +107,6 @@ return {
 			dap.listeners.before.event_exited["dapui_config"] = function()
 				dapui.close()
 			end
-
-			vim.keymap.set("n", "<Leader>db", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
-			vim.keymap.set("n", "<Leader>dc", dap.continue, { desc = "Continue debug session" })
-			vim.keymap.set("n", "<Leader>di", dap.step_into, { desc = "Step into" })
-			vim.keymap.set("n", "<Leader>do", dap.step_over, { desc = "Step over" })
-			vim.keymap.set("n", "<Leader>du", dapui.toggle, { desc = "Toggle DAP UI" })
-			vim.keymap.set("n", "<Leader>dx", dap.terminate, { desc = "Terminate debug session" })
 		end,
 	},
 }

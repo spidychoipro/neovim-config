@@ -1,5 +1,9 @@
 return {
   "goolord/alpha-nvim",
+  event = "VimEnter",
+  cond = function()
+    return vim.fn.argc() == 0
+  end,
   dependencies = {
     "nvim-tree/nvim-web-devicons",
   },

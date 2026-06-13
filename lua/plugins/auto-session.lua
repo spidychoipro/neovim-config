@@ -14,7 +14,7 @@ return {
                 bypass_save_filetypes = { "alpha", "neo-tree" },
                 session_lens = {
                     picker = "telescope",
-                    load_on_setup = true,
+                    load_on_setup = false,
                 },
             })
 
