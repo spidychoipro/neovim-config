@@ -117,7 +117,7 @@ local function windows_command(info)
     end
 
     if info.filetype == "ps1" or info.filetype == "powershell" then
-        return "& pwsh.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File " .. file
+        return "& pwsh.exe -NoLogo -ExecutionPolicy Bypass -File " .. file
     end
 
     if info.filetype == "c" then
@@ -183,10 +183,21 @@ local function open_windows_terminal(info, command)
     vim.fn.mkdir(script_dir, "p")
 
     -- Robust PowerShell runner script
+    local venv_utils = require("utils.venv")
+    local python_path = venv_utils.get_python_path()
+
     local script_lines = {
         "$Host.UI.RawUI.WindowTitle = 'Run current file'",
         "Set-Location -LiteralPath " .. ps_quote(info.dir),
         "$ErrorActionPreference = 'Continue'",
+        "",
+        "if (" .. (info.filetype == "python" and "true" or "false") .. ") {",
+        "    Write-Host '--- Python Diagnostics ---'",
+        "    & " .. ps_quote(python_path) .. " -c \"import sys, site; print(f'Executable: {sys.executable}'); print(f'Site Packages: {site.getsitepackages()}')\"",
+        "    Write-Host '--------------------------'",
+        "    Write-Host ''",
+        "}",
+        "",
         command,
         "if ($LASTEXITCODE -ne 0 -or $? -eq $false) {",
         "    Write-Host ''",
@@ -212,7 +223,6 @@ local function open_windows_terminal(info, command)
             "new",
             "pwsh.exe",
             "-NoLogo",
-            "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
             "-File",
@@ -227,7 +237,6 @@ local function open_windows_terminal(info, command)
             "start",
             "pwsh.exe",
             "-NoLogo",
-            "-NoProfile",
             "-ExecutionPolicy",
             "Bypass",
             "-File",
@@ -248,7 +257,6 @@ local function open_windows_terminal(info, command)
                 "start",
                 "pwsh.exe",
                 "-NoLogo",
-                "-NoProfile",
                 "-ExecutionPolicy",
                 "Bypass",
                 "-File",
