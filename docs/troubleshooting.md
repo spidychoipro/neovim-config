@@ -63,7 +63,7 @@ Check parser health:
 
 If Neo-tree appears empty for a while or Neovim pauses when opening the file explorer, check whether the current directory or your Windows home directory is accidentally a very large Git worktree.
 
-This config keeps Neo-tree git status enabled for normal projects, but it avoids the expensive ignored/untracked scan when the Git root is the user profile. The filesystem scan is also forced async with `async_directory_scan = "always"` so `<C-n>` does not block the editor.
+This config keeps Neo-tree git status enabled for normal projects, but it avoids the expensive status and gitignored scans when the Git root is the user profile. Neo-tree keeps its default `async_directory_scan = "auto"` behavior so command-based opens can render the shallow file list immediately.
 
 Auto-session also skips the Windows home directory and removes stale Neo-tree nofile buffers before saving sessions. That prevents old sessions from restoring an empty `neo-tree filesystem [1]` buffer before Neo-tree has reloaded.
 

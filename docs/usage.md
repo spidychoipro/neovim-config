@@ -43,7 +43,7 @@ The runner:
 
 `<C-n>` opens Neo-tree and reveals the current file.
 
-Neo-tree keeps git status and diagnostics enabled, but directory scanning runs asynchronously so opening the tree does not block the UI. If the Windows user profile itself is a Git worktree, Neo-tree skips the expensive home-directory git status scan while keeping git status active in normal project repositories.
+Neo-tree keeps git status and diagnostics enabled. If the Windows user profile itself is a Git worktree, Neo-tree skips the expensive home-directory git status and gitignored scans while keeping git integration active in normal project repositories.
 
 ## Persistent Undo
 
