@@ -80,6 +80,7 @@ nvim
 | `<C-p>` | 파일 검색 |
 | `<leader>/` | 프로젝트 텍스트 검색 |
 | `<C-n>` | 파일 탐색기 열기 |
+| `<leader>hh` | 대시보드로 돌아가기 |
 | `<leader>xx` | Trouble 진단 목록 |
 | `<leader>ll` | inline diagnostics 토글 |
 | `<leader>ld` | 다음 파일까지 inline diagnostics 끄기 |

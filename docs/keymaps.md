@@ -13,6 +13,7 @@ The leader key is `<Space>`.
 | `<leader>fb` | Normal | Find buffers |
 | `<leader>fh` | Normal | Find help |
 | `<C-n>` | Normal | Reveal file explorer |
+| `<leader>hh` | Normal | Go to dashboard |
 | `<leader>?` | Normal | Buffer-local keymaps |
 | `<C-S-v>` | Normal / Insert | Paste from system clipboard |
 
