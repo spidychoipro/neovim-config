@@ -9,12 +9,15 @@ This setup treats Neovim as a control center and keeps program execution in a re
 ## Features
 
 - LSP support for Bash, Python, Lua, PowerShell, C, and C++.
+- **Automatic Python Virtual Environment Detection** (.venv, venv, env).
 - External run system with `<leader>r`.
 - Windows Terminal + PowerShell execution on Windows.
 - Linux terminal execution through an available system terminal.
+- **Lightweight Git Integration** with Gitsigns.
+- **Enhanced Debugging UX** with Dap UI and auto-detection.
+- **Project-wide Navigation** with Trouble and Telescope.
 - Formatting with `conform.nvim`.
 - Linting with `nvim-lint`.
-- Debugging with `nvim-dap`, `debugpy`, and `codelldb`.
 - Session management with `auto-session`.
 - Task history and optional structured workflows with `overseer.nvim`.
 - Discoverable keymaps with `which-key.nvim`.
@@ -22,41 +25,84 @@ This setup treats Neovim as a control center and keeps program execution in a re
 
 ## Philosophy
 
-- External terminal first.
-- Minimal but powerful.
-- Fast iteration over heavy abstraction.
-- IDE-like workflow without bloat.
+- **External terminal first**: Program execution happens in a real terminal, not a partial Neovim emulation.
+- **Lightweight & Fast**: No unnecessary bloat or "distro" feel.
+- **Stable & Predictable**: Minimal abstractions for maximum maintainability.
+- **IDE-like UX**: Modern features where they matter (DAP, Git, LSP).
 
 ## Keybindings
+
+### General
 
 | Keybinding | Action |
 | --- | --- |
 | `<leader>r` | Run current file in an external terminal |
 | `<leader>f` | Format current file |
-| `<leader>d` | Debug group |
-| `<leader>dt` | Toggle breakpoint |
-| `<leader>dc` | Continue debug session |
-| `<leader>di` | Step into |
-| `<leader>do` | Step over |
-| `<leader>du` | Step out |
-| `<leader>l` | LSP group |
-| `<leader>la` | Code action |
-| `<leader>lr` | Rename symbol |
-| `<leader>ld` | Line diagnostics |
-| `<leader>t` | Tasks group |
-| `<leader>tr` | Run Overseer task |
-| `<leader>tb` | Build Overseer task |
-| `<leader>tt` | Toggle Overseer task list |
-| `<leader>ta` | Overseer task action |
-| `<leader>s` | Session group |
-| `<leader>ss` | Search sessions |
-| `<leader>sr` | Restore session |
-| `<leader>sw` | Save session |
-| `<leader>st` | Toggle session autosave |
 | `<leader>/` | Live grep |
 | `<leader>?` | Buffer-local keymaps |
 | `<C-p>` | Find files |
 | `<C-n>` | Reveal file explorer |
+
+### Git (`<leader>g`)
+
+| Keybinding | Action |
+| --- | --- |
+| `]c` | Next hunk |
+| `[c` | Previous hunk |
+| `<leader>gs` | Stage hunk |
+| `<leader>gr` | Reset hunk |
+| `<leader>gp` | Preview hunk |
+| `<leader>gb` | Blame line |
+
+### Debugging (`<leader>d`)
+
+| Keybinding | Action |
+| --- | --- |
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dc` | Continue debug session |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>du` | Toggle DAP UI |
+| `<leader>dx` | Terminate debug session |
+
+### Tasks (`<leader>t`)
+
+| Keybinding | Action |
+| --- | --- |
+| `<leader>tr` | Run Overseer task |
+| `<leader>tb` | Build Overseer task |
+| `<leader>tt` | Toggle Overseer task list |
+| `<leader>ta` | Overseer task action |
+
+### Trouble (`<leader>x`)
+
+| Keybinding | Action |
+| --- | --- |
+| `<leader>xx` | Diagnostics (Trouble) |
+| `<leader>xX` | Buffer Diagnostics (Trouble) |
+| `<leader>xQ` | Quickfix List (Trouble) |
+| `<leader>xL` | Location List (Trouble) |
+| `<leader>cl` | LSP Symbols / References (Trouble) |
+
+## Python Virtual Environments
+
+The configuration automatically detects and uses Python virtual environments located in project root:
+- `.venv`
+- `venv`
+- `env`
+
+This works seamlessly for:
+- LSP (`basedpyright`)
+- DAP (`debugpy`)
+- External runner (`<leader>r`)
+
+## Overseer Workflow
+
+Overseer is used for task management. All tasks are configured to run as background jobs with captured output.
+
+- Pressing `Enter` in a task output window will close it.
+- Pressing `q` will close the task list or detail window.
+- No hanging processes are left behind after task completion.
 
 ## External Run System
 
