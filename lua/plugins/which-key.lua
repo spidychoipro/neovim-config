@@ -11,6 +11,7 @@ return {
                 { "<leader>l", group = "LSP" },
                 { "<leader>s", group = "Session" },
                 { "<leader>t", group = "Tasks" },
+                { "<leader>u", group = "UI" },
                 { "<leader>x", group = "Trouble" },
                 { "<leader>c", group = "Symbols" },
             },
