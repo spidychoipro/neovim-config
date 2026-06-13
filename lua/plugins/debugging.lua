@@ -21,10 +21,37 @@ return {
 				and vim.fs.joinpath(mason_packages, "codelldb", "extension", "adapter", "codelldb.exe")
 				or vim.fs.joinpath(mason_packages, "codelldb", "extension", "adapter", "codelldb")
 
-			dapui.setup()
+			dapui.setup({
+				layouts = {
+					{
+						elements = {
+							{ id = "scopes", size = 0.25 },
+							{ id = "breakpoints", size = 0.25 },
+							{ id = "stacks", size = 0.25 },
+							{ id = "watches", size = 0.25 },
+						},
+						position = "left",
+						size = 40,
+					},
+					{
+						elements = {
+							{ id = "repl", size = 0.5 },
+							{ id = "console", size = 0.5 },
+						},
+						position = "bottom",
+						size = 10,
+					},
+				},
+			})
+
+			local venv_utils = require("utils.venv")
 
 			if vim.fn.filereadable(debugpy_python) == 1 then
-				require("dap-python").setup(debugpy_python)
+				local dap_python = require("dap-python")
+				dap_python.setup(debugpy_python)
+				dap_python.resolve_python = function()
+					return venv_utils.get_python_path()
+				end
 			end
 
 			if vim.fn.filereadable(codelldb) == 1 then
@@ -62,24 +89,22 @@ return {
 				dap.configurations.cpp = vim.deepcopy(dap.configurations.c)
 			end
 
-			dap.listeners.before.attach.dapui_config = function()
+			dap.listeners.after.event_initialized["dapui_config"] = function()
 				dapui.open()
 			end
-			dap.listeners.before.launch.dapui_config = function()
-				dapui.open()
-			end
-			dap.listeners.before.event_terminated.dapui_config = function()
+			dap.listeners.before.event_terminated["dapui_config"] = function()
 				dapui.close()
 			end
-			dap.listeners.before.event_exited.dapui_config = function()
+			dap.listeners.before.event_exited["dapui_config"] = function()
 				dapui.close()
 			end
 
-			vim.keymap.set("n", "<Leader>dt", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
+			vim.keymap.set("n", "<Leader>db", dap.toggle_breakpoint, { desc = "Toggle breakpoint" })
 			vim.keymap.set("n", "<Leader>dc", dap.continue, { desc = "Continue debug session" })
 			vim.keymap.set("n", "<Leader>di", dap.step_into, { desc = "Step into" })
 			vim.keymap.set("n", "<Leader>do", dap.step_over, { desc = "Step over" })
-			vim.keymap.set("n", "<Leader>du", dap.step_out, { desc = "Step out" })
+			vim.keymap.set("n", "<Leader>du", dapui.toggle, { desc = "Toggle DAP UI" })
+			vim.keymap.set("n", "<Leader>dx", dap.terminate, { desc = "Terminate debug session" })
 		end,
 	},
 }
