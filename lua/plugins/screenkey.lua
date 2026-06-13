@@ -78,6 +78,7 @@ return {
                     screenkey.toggle()
                 end
             end
+            local auto_enable = (vim.g.nvim_config or {}).features.auto_enable_screenkey
 
             vim.keymap.set("n", "<leader>uo", function()
                 if screenkey.is_active() then
@@ -85,14 +86,16 @@ return {
                 end
             end, { desc = "Disable Screenkey Until Next File" })
 
-            vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-                group = vim.api.nvim_create_augroup("AutoEnableScreenkey", { clear = true }),
-                callback = enable_screenkey,
-            })
+            if auto_enable then
+                vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+                    group = vim.api.nvim_create_augroup("AutoEnableScreenkey", { clear = true }),
+                    callback = enable_screenkey,
+                })
 
-            vim.schedule(function()
-                enable_screenkey()
-            end)
+                vim.schedule(function()
+                    enable_screenkey()
+                end)
+            end
         end,
     },
 }

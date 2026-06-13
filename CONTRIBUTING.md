@@ -7,6 +7,7 @@ Thanks for improving this Neovim configuration. The goal is to keep the setup fa
 - Preserve existing features and keymaps unless a change explicitly requires otherwise.
 - Prefer current Neovim APIs over deprecated compatibility paths.
 - Keep plugin configuration close to the plugin file in `lua/plugins/`.
+- Put user-facing customization defaults in `lua/config/defaults.lua`.
 - Keep Windows behavior working, especially PowerShell, Mason paths, and external terminal execution.
 - Document user-facing changes in `README.md` or `docs/`.
 
@@ -53,4 +54,5 @@ Thanks for improving this Neovim configuration. The goal is to keep the setup fa
 - [ ] `:checkhealth nvim-treesitter vim.treesitter` is clean or warnings are explained.
 - [ ] Python LSP still avoids scanning the whole user profile for single files.
 - [ ] PowerShell files can save and quit cleanly.
+- [ ] Local customization through `lua/user.lua` still loads without changing repository defaults.
 - [ ] Documentation is updated for user-facing changes.
