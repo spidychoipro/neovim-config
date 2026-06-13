@@ -42,18 +42,15 @@ local function find_lua()
 end
 
 local function find_wt()
-    if executable("wt.exe") then
-        return "wt.exe"
-    end
-
     if executable("wt") then
         return "wt"
     end
 
-    local windows_apps_wt = vim.fn.expand("$LOCALAPPDATA\\Microsoft\\WindowsApps\\wt.exe")
-    if vim.fn.filereadable(windows_apps_wt) == 1 then
-        return windows_apps_wt
+    if executable("wt.exe") then
+        return "wt.exe"
     end
+
+    return nil
 end
 
 local function find_linux_shell()
@@ -175,12 +172,6 @@ local function linux_command(info)
 end
 
 local function open_windows_terminal(info, command)
-    local wt = find_wt()
-    if not wt then
-        notify("Windows Terminal was not found", vim.log.levels.ERROR)
-        return
-    end
-
     if not executable("pwsh.exe") then
         notify("pwsh.exe was not found", vim.log.levels.ERROR)
         return
@@ -210,22 +201,63 @@ local function open_windows_terminal(info, command)
         return
     end
 
-    -- Launch wt directly without intermediate launcher script
-    local job = vim.fn.jobstart({
-        wt,
-        "-w",
-        "new",
-        "pwsh.exe",
-        "-NoLogo",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        runner_script,
-    }, { detach = true })
+    local wt = find_wt()
+    local job_cmd
 
-    if job <= 0 then
-        notify("Failed to open Windows Terminal", vim.log.levels.ERROR)
+    if wt then
+        -- Prefer launching via Windows Terminal if found in PATH
+        job_cmd = {
+            wt,
+            "-w",
+            "new",
+            "pwsh.exe",
+            "-NoLogo",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            runner_script,
+        }
+    else
+        -- Fallback to standard 'start' command which opens the default terminal (usually WT or ConHost)
+        job_cmd = {
+            "cmd.exe",
+            "/d",
+            "/c",
+            "start",
+            "pwsh.exe",
+            "-NoLogo",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-File",
+            runner_script,
+        }
+    end
+
+    -- Use pcall to prevent E5108 and E475 from crashing the session
+    local success, job = pcall(vim.fn.jobstart, job_cmd, { detach = true })
+
+    if not success or job <= 0 then
+        -- Last ditch attempt if direct 'wt' launch failed (e.g. if it was a Store alias that jobstart hates)
+        if wt then
+            local fallback_cmd = {
+                "cmd.exe",
+                "/d",
+                "/c",
+                "start",
+                "pwsh.exe",
+                "-NoLogo",
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                runner_script,
+            }
+            pcall(vim.fn.jobstart, fallback_cmd, { detach = true })
+        else
+            notify("Failed to open terminal", vim.log.levels.ERROR)
+        end
     end
 end
 
