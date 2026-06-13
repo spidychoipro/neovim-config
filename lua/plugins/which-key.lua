@@ -7,6 +7,7 @@ return {
             delay = 200,
             spec = {
                 { "<leader>d", group = "Debug" },
+                { "<leader>g", group = "Git" },
                 { "<leader>l", group = "LSP" },
                 { "<leader>s", group = "Session" },
                 { "<leader>t", group = "Tasks" },
