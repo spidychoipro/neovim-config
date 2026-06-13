@@ -40,7 +40,7 @@ vim.opt.updatetime = editor.updatetime
 vim.opt.ignorecase = editor.ignorecase
 vim.opt.smartcase = editor.smartcase
 vim.opt.undofile = editor.undofile
-vim.o.sessionoptions = editor.sessionoptions
+vim.opt.sessionoptions = editor.sessionoptions
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
