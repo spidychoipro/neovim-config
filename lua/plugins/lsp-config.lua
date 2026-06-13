@@ -36,7 +36,7 @@ return {
         end,
     },
     {
-        "williamboman/mason-lspconfig.nvim",
+        "mason-org/mason-lspconfig.nvim",
         event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             "mason-org/mason.nvim",
@@ -169,7 +169,7 @@ return {
                 return root
             end
 
-            vim.lsp.config.lua_ls = {
+            vim.lsp.config("lua_ls", {
                 cmd = { tool_path("lua-language-server", "lua-language-server", "bin/lua-language-server.exe") },
                 filetypes = { "lua" },
                 capabilities = capabilities,
@@ -194,9 +194,9 @@ return {
                         },
                     },
                 },
-            }
+            })
 
-            vim.lsp.config.basedpyright = {
+            vim.lsp.config("basedpyright", {
                 cmd = { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" },
                 filetypes = {"python"},
                 capabilities = capabilities,
@@ -262,9 +262,9 @@ return {
                         })
                     end
                 end,
-            }
+            })
 
-            vim.lsp.config.bashls = {
+            vim.lsp.config("bashls", {
                 cmd = { tool_path("bash-language-server", "bash-language-server", "node_modules/.bin/bash-language-server.cmd"), "start" },
                 filetypes = { "sh", "bash" },
                 root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
@@ -278,9 +278,9 @@ return {
                         },
                     },
                 },
-            }
+            })
 
-            vim.lsp.config.clangd = {
+            vim.lsp.config("clangd", {
                 cmd = {
                     tool_path("clangd", "clangd", "clangd_*/bin/clangd.exe"),
                     "--background-index",
@@ -300,7 +300,7 @@ return {
                     "Makefile",
                 },
                 capabilities = capabilities,
-            }
+            })
 
             vim.api.nvim_create_autocmd("LspAttach", {
                 callback = function(args)
