@@ -24,22 +24,21 @@ end
 function M.find_venv(workspace)
     workspace = workspace or vim.fn.getcwd()
 
-    -- Do not automatically pick up venvs in HOME directory unless there are project markers
-    local home = vim.fn.expand("$HOME")
-    if workspace == home then
-        local markers = { ".git", "pyproject.toml", "setup.py", "requirements.txt", ".python-version" }
-        local found_marker = false
-        for _, marker in ipairs(markers) do
-            if vim.fn.filereadable(vim.fs.joinpath(workspace, marker)) == 1
-                or vim.fn.isdirectory(vim.fs.joinpath(workspace, marker)) == 1
-            then
-                found_marker = true
-                break
-            end
+    -- ONLY use venv if we are in a "Project" (strong markers exist)
+    -- This prevents accidental detection in home directory or simple script folders
+    local markers = { ".git", "pyproject.toml", "requirements.txt", "setup.py", ".python-version" }
+    local has_marker = false
+    for _, marker in ipairs(markers) do
+        if vim.fn.filereadable(vim.fs.joinpath(workspace, marker)) == 1
+            or vim.fn.isdirectory(vim.fs.joinpath(workspace, marker)) == 1
+        then
+            has_marker = true
+            break
         end
-        if not found_marker then
-            return nil
-        end
+    end
+
+    if not has_marker then
+        return nil
     end
 
     local venv_names = { ".venv", "venv", "env" }
@@ -58,30 +57,41 @@ function M.find_venv(workspace)
 end
 
 function M.resolve_python(workspace)
-    local venv = M.find_venv(workspace)
-    if venv then
+    workspace = workspace or (vim.api.nvim_buf_get_name(0) ~= "" and vim.fs.dirname(vim.api.nvim_buf_get_name(0))) or vim.fn.getcwd()
+
+    -- USER PRIORITY FOR WINDOWS: Single-file execution first
+    if is_windows then
+        -- 1. py launcher (Primary, most reliable for global packages)
+        if vim.fn.executable("py") == 1 then
+            return {
+                path = "py",
+                source = "global py launcher (primary)",
+            }
+        end
+
+        -- 2. global python.exe
+        if vim.fn.executable("python.exe") == 1 then
+            return {
+                path = "python.exe",
+                source = "global python",
+            }
+        end
+    end
+
+    -- 3. venv (Only if strong project markers exist)
+    local venv_path = M.find_venv(workspace)
+    if venv_path then
         return {
-            path = venv,
+            path = venv_path,
             source = "project venv",
         }
     end
 
-    if is_windows then
-        if vim.fn.executable("py") == 1 then
-            return {
-                path = "py",
-                source = "global py",
-            }
-        end
-        return {
-            path = "python.exe",
-            source = "global python",
-        }
-    end
-
+    -- Default fallback
+    local default = is_windows and "python.exe" or "python"
     return {
-        path = "python",
-        source = "global python",
+        path = default,
+        source = "system default fallback",
     }
 end
 
