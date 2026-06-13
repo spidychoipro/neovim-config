@@ -20,7 +20,8 @@ This setup treats Neovim as the editing control center while keeping program exe
 | Diagnostics | E/W/I/H signs plus modern inline diagnostics with `tiny-inline-diagnostic.nvim` |
 | Runtime workflow | `<leader>r` runs the current file in an external terminal |
 | Windows support | PowerShell 7, Windows Terminal, Mason tool paths, and `.ps1` job cleanup |
-| Project navigation | Telescope, Neo-tree, Trouble, Gitsigns, and which-key |
+| Project navigation | Telescope, Neo-tree, Trouble, Gitsigns, which-key, and `flash.nvim` |
+| Editing help | Yank notifications and beginner-friendly yank history with `yanky.nvim` |
 | Debugging and tasks | `nvim-dap`, `dap-ui`, `overseer.nvim`, and task history |
 | Sessions | Automatic save and restore with `auto-session` |
 | Modern APIs | Neovim 0.12-ready Tree-sitter, LSP, diagnostics, and `vim.uv` usage |
@@ -85,6 +86,8 @@ Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, 
 | `<leader>/` | Search project text |
 | `<C-n>` | Reveal file explorer |
 | `<leader>hh` | Return to the dashboard |
+| `<leader>j` | Jump quickly with Flash |
+| `<leader>p` | Open yank history |
 | `<leader>xx` | Open Trouble diagnostics |
 | `<leader>ll` | Toggle inline diagnostics |
 | `<leader>ld` | Disable inline diagnostics until the next file |

@@ -14,8 +14,19 @@ The leader key is `<Space>`.
 | `<leader>fh` | Normal | Find help |
 | `<C-n>` | Normal | Reveal file explorer |
 | `<leader>hh` | Normal | Go to dashboard |
+| `<leader>j` | Normal / Visual / Operator | Flash jump |
 | `<leader>?` | Normal | Buffer-local keymaps |
 | `<C-S-v>` | Normal / Insert | Paste from system clipboard |
+
+## Yank And Paste
+
+| Key | Mode | Action |
+| --- | --- | --- |
+| `p` | Normal / Visual | Paste after the cursor or selection |
+| `P` | Normal / Visual | Paste before the cursor or selection |
+| `<leader>p` | Normal / Visual | Open yank history |
+| `[y` | Normal | After a paste, replace it with the previous yank |
+| `]y` | Normal | After a paste, replace it with the next yank |
 
 ## LSP
 

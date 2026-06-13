@@ -21,6 +21,7 @@ This repository keeps behavior grouped by responsibility rather than by plugin m
 |   |   |-- debugging.lua
 |   |   |-- diagnostics.lua
 |   |   |-- dracula.lua
+|   |   |-- flash.lua
 |   |   |-- gitsigns.lua
 |   |   |-- lsp-config.lua
 |   |   |-- lualine.lua
@@ -31,7 +32,8 @@ This repository keeps behavior grouped by responsibility rather than by plugin m
 |   |   |-- telescope.lua
 |   |   |-- treesitter.lua
 |   |   |-- trouble.lua
-|   |   `-- which-key.lua
+|   |   |-- which-key.lua
+|   |   `-- yanky.lua
 |   |-- utils/
 |   |   |-- external-runner.lua
 |   |   `-- venv.lua
@@ -55,6 +57,8 @@ This repository keeps behavior grouped by responsibility rather than by plugin m
 | --- | --- |
 | `lua/plugins/lsp-config.lua` | Mason, LSP servers, root detection, attach keymaps |
 | `lua/plugins/diagnostics.lua` | Diagnostic signs, inline diagnostics, diagnostic keymaps |
+| `lua/plugins/flash.lua` | Minimal Flash jump keymap for faster visible navigation |
+| `lua/plugins/yanky.lua` | Yank notification, yank history, and simple paste history keymaps |
 | `lua/plugins/treesitter.lua` | Tree-sitter parser setup and highlighting |
 | `lua/plugins/screenkey.lua` | Screenkey setup, auto enable, manual controls |
 | `lua/config/defaults.lua` | Shared defaults for editor options and feature toggles |
