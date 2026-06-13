@@ -4,6 +4,55 @@ return {
         event = "VeryLazy",
         init = function()
             local group = vim.api.nvim_create_augroup("YankNotify", { clear = true })
+            local notice = { buf = nil, win = nil }
+
+            local function close_notice()
+                if notice.win and vim.api.nvim_win_is_valid(notice.win) then
+                    vim.api.nvim_win_close(notice.win, true)
+                end
+
+                notice.win = nil
+                notice.buf = nil
+            end
+
+            local function show_yank_notice()
+                close_notice()
+
+                local text = " Copied "
+                local width = #text
+                local row = math.max(vim.o.lines - 4, 0)
+                local col = math.max(math.floor((vim.o.columns - width) / 2), 0)
+
+                notice.buf = vim.api.nvim_create_buf(false, true)
+                vim.bo[notice.buf].bufhidden = "wipe"
+                vim.api.nvim_buf_set_lines(notice.buf, 0, -1, false, { text })
+
+                notice.win = vim.api.nvim_open_win(notice.buf, false, {
+                    relative = "editor",
+                    row = row,
+                    col = col,
+                    width = width,
+                    height = 1,
+                    style = "minimal",
+                    focusable = false,
+                    zindex = 60,
+                })
+
+                vim.wo[notice.win].winblend = 0
+                vim.wo[notice.win].winhighlight = "Normal:DiagnosticVirtualTextInfo"
+
+                local fade_steps = { 15, 30, 45, 60, 75, 90 }
+
+                for index, blend in ipairs(fade_steps) do
+                    vim.defer_fn(function()
+                        if notice.win and vim.api.nvim_win_is_valid(notice.win) then
+                            vim.wo[notice.win].winblend = blend
+                        end
+                    end, 450 + (index * 90))
+                end
+
+                vim.defer_fn(close_notice, 1100)
+            end
 
             vim.api.nvim_create_autocmd("TextYankPost", {
                 group = group,
@@ -12,13 +61,13 @@ return {
                         return
                     end
 
-                    local ok, err = pcall(vim.notify, "Yanked", vim.log.levels.INFO, {
-                        title = "Yank",
-                    })
+                    vim.schedule(function()
+                        local ok, err = pcall(show_yank_notice)
 
-                    if not ok then
-                        vim.api.nvim_err_writeln("Yank notification failed: " .. tostring(err))
-                    end
+                        if not ok then
+                            vim.api.nvim_err_writeln("Yank notification failed: " .. tostring(err))
+                        end
+                    end)
                 end,
             })
         end,
