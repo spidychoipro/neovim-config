@@ -1,0 +1,28 @@
+{
+  "exclude": [
+    "**/.git",
+    "**/.hg",
+    "**/.svn",
+    "**/.venv",
+    "**/venv",
+    "**/env",
+    "**/.virtualenvs",
+    "**/__pycache__",
+    "**/.pytest_cache",
+    "**/.mypy_cache",
+    "**/.ruff_cache",
+    "**/.cache",
+    "**/cache",
+    "**/tmp",
+    "**/temp",
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/target",
+    "**/AppData/Local/nvim-data",
+    "**/AppData/Local/Temp",
+    "**/AppData/Roaming/npm-cache",
+    "**/AppData/Roaming/Python"
+  ],
+  "typeCheckingMode": "basic"
+}

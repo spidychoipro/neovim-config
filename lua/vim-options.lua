@@ -26,13 +26,15 @@ vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
-  vim.schedule(function()
-    local function prepend_path(path)
-      if vim.fn.isdirectory(path) == 1 and not vim.env.PATH:find(path, 1, true) then
-        vim.env.PATH = path .. ";" .. vim.env.PATH
-      end
+  local function prepend_path(path)
+    if vim.fn.isdirectory(path) == 1 and not vim.env.PATH:find(path, 1, true) then
+      vim.env.PATH = path .. ";" .. vim.env.PATH
     end
+  end
 
+  prepend_path(vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin"))
+
+  vim.schedule(function()
     local extra_paths = {
       "C:\\Program Files\\Git\\usr\\bin",
       "C:\\Program Files\\7-Zip",

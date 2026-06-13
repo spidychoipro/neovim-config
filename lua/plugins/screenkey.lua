@@ -23,8 +23,7 @@ return {
                 events = false,
             },
             filter = function(keys)
-                local screenkey = require("screenkey")
-                if screenkey.statusline_component_is_active() then
+                if vim.g.screenkey_statusline_component then
                     for index, key in ipairs(keys) do
                         if key.key == "%" then
                             keys[index].key = "%%"
@@ -35,5 +34,15 @@ return {
                 return keys
             end,
         },
+        config = function(_, opts)
+            local screenkey = require("screenkey")
+            screenkey.setup(opts)
+
+            vim.schedule(function()
+                if not screenkey.is_active() then
+                    screenkey.toggle()
+                end
+            end)
+        end,
     },
 }

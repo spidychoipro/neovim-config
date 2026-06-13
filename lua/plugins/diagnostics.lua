@@ -27,7 +27,7 @@ local diagnostic_config = {
     },
     underline = true,
     severity_sort = true,
-    update_in_insert = false,
+    update_in_insert = true,
     float = {
         border = "rounded",
         focusable = false,
@@ -44,6 +44,33 @@ local function apply_diagnostic_config()
     vim.fn.sign_define("DiagnosticSignHint", { text = "H", texthl = "DiagnosticSignHint", numhl = "DiagnosticSignHint" })
 
     vim.diagnostic.config(diagnostic_config)
+    vim.diagnostic.enable(true)
+end
+
+local function refresh_inline_diagnostics(bufnr)
+    bufnr = bufnr or vim.api.nvim_get_current_buf()
+
+    local function render()
+        if not vim.api.nvim_buf_is_valid(bufnr) then
+            return
+        end
+
+        local ok_diag, tiny_diag = pcall(require, "tiny-inline-diagnostic")
+        local ok_state, state = pcall(require, "tiny-inline-diagnostic.state")
+        local ok_renderer, renderer = pcall(require, "tiny-inline-diagnostic.renderer")
+
+        if ok_state then
+            state.enable()
+        end
+
+        if ok_diag and ok_renderer and tiny_diag.config then
+            renderer.safe_render(tiny_diag.config, bufnr)
+        end
+    end
+
+    vim.schedule(render)
+    vim.defer_fn(render, 20)
+    vim.defer_fn(render, 120)
 end
 
 return {
@@ -62,8 +89,8 @@ return {
                 options = {
                     show_diags_only_under_cursor = false,
                     show_all_diags_on_cursorline = true,
-                    enable_on_insert = false,
-                    throttle = 20,
+                    enable_on_insert = true,
+                    throttle = 10,
                     virt_texts = {
                         priority = 4096,
                     },
@@ -73,7 +100,14 @@ return {
                         severity.INFO,
                         severity.HINT,
                     },
-                    overwrite_events = { "LspAttach", "DiagnosticChanged", "BufEnter" },
+                    overwrite_events = {
+                        "LspAttach",
+                        "DiagnosticChanged",
+                        "BufEnter",
+                        "TextChanged",
+                        "TextChangedI",
+                        "TextChangedP",
+                    },
                     override_open_float = true,
                 },
             })
@@ -82,7 +116,24 @@ return {
 
             vim.schedule(function()
                 tiny_diag.enable()
+                refresh_inline_diagnostics()
             end)
+
+            vim.api.nvim_create_autocmd({
+                "BufEnter",
+                "DiagnosticChanged",
+                "InsertEnter",
+                "InsertLeave",
+                "TextChanged",
+                "TextChangedI",
+                "TextChangedP",
+            }, {
+                group = vim.api.nvim_create_augroup("RealtimeInlineDiagnostics", { clear = true }),
+                callback = function(args)
+                    apply_diagnostic_config()
+                    refresh_inline_diagnostics(args.buf)
+                end,
+            })
 
             vim.keymap.set("n", "<leader>e", function()
                 vim.diagnostic.open_float()
