@@ -189,64 +189,39 @@ local function open_windows_terminal(info, command)
     local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
     local script_id = tostring((vim.uv or vim.loop).hrtime())
     local runner_script = vim.fs.joinpath(script_dir, "run-" .. script_id .. ".ps1")
-    local launcher_script = vim.fs.joinpath(script_dir, "launch-" .. script_id .. ".ps1")
     vim.fn.mkdir(script_dir, "p")
 
-    local script =
-        "$Host.UI.RawUI.WindowTitle = 'Run current file';"
-        .. "Set-Location -LiteralPath " .. ps_quote(info.dir)
-        .. "; try { "
-        .. command
-        .. " } catch { "
-        .. "Write-Host $_"
-        .. " } finally { "
-        .. "Write-Host ''; Read-Host 'Press Enter to close'; exit"
-        .. " }"
-
-    local runner_lines = {
-        script,
-        "Remove-Item -LiteralPath " .. ps_quote(runner_script) .. " -Force -ErrorAction SilentlyContinue",
-        "Remove-Item -LiteralPath " .. ps_quote(launcher_script) .. " -Force -ErrorAction SilentlyContinue",
+    -- Robust PowerShell runner script
+    local script_lines = {
+        "$Host.UI.RawUI.WindowTitle = 'Run current file'",
+        "Set-Location -LiteralPath " .. ps_quote(info.dir),
+        "$ErrorActionPreference = 'Continue'",
+        command,
+        "if ($LASTEXITCODE -ne 0 -or $? -eq $false) {",
+        "    Write-Host ''",
+        "    Read-Host 'Press Enter to close'",
+        "}",
+        "Remove-Item -LiteralPath $MyInvocation.MyCommand.Path -Force -ErrorAction SilentlyContinue",
+        "exit",
     }
 
-    local launcher_lines = {
-        "$arguments = @(",
-        "    '-w',",
-        "    'new',",
-        "    'pwsh.exe',",
-        "    '-NoLogo',",
-        "    '-NoProfile',",
-        "    '-ExecutionPolicy',",
-        "    'Bypass',",
-        "    '-NoExit',",
-        "    '-File',",
-        "    " .. ps_quote(runner_script),
-        ")",
-        "Start-Process -FilePath " .. ps_quote(wt) .. " -ArgumentList $arguments",
-        "Start-Sleep -Milliseconds 500",
-        "Remove-Item -LiteralPath " .. ps_quote(launcher_script) .. " -Force -ErrorAction SilentlyContinue",
-    }
-
-    if vim.fn.writefile(runner_lines, runner_script) ~= 0
-        or vim.fn.writefile(launcher_lines, launcher_script) ~= 0
-    then
-        notify("Failed to create external runner scripts", vim.log.levels.ERROR)
+    if vim.fn.writefile(script_lines, runner_script) ~= 0 then
+        notify("Failed to create external runner script", vim.log.levels.ERROR)
         return
     end
 
+    -- Launch wt directly without intermediate launcher script
     local job = vim.fn.jobstart({
-        "cmd.exe",
-        "/d",
-        "/c",
-        "start",
-        "",
+        wt,
+        "-w",
+        "new",
         "pwsh.exe",
         "-NoLogo",
         "-NoProfile",
         "-ExecutionPolicy",
         "Bypass",
         "-File",
-        launcher_script,
+        runner_script,
     }, { detach = true })
 
     if job <= 0 then
