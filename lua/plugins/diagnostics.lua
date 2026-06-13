@@ -35,8 +35,9 @@ local function apply_diagnostic_config()
     vim.diagnostic.enable(true)
 end
 
-local function refresh_inline_diagnostics(bufnr)
+local function refresh_inline_diagnostics(bufnr, opts)
     bufnr = bufnr or vim.api.nvim_get_current_buf()
+    opts = opts or {}
 
     local function render()
         if not vim.api.nvim_buf_is_valid(bufnr) then
@@ -56,9 +57,18 @@ local function refresh_inline_diagnostics(bufnr)
         end
     end
 
-    vim.schedule(render)
-    vim.defer_fn(render, 20)
-    vim.defer_fn(render, 120)
+    local initial_delay = opts.initial_delay
+    if initial_delay == nil then
+        initial_delay = 80
+    end
+
+    if initial_delay <= 0 then
+        vim.schedule(render)
+    else
+        vim.defer_fn(render, initial_delay)
+    end
+
+    vim.defer_fn(render, opts.followup_delay or 220)
 end
 
 return {
@@ -79,13 +89,13 @@ return {
                     up_arrow = "",
                 },
                 options = {
-                    show_diags_only_under_cursor = false,
-                    show_all_diags_on_cursorline = true,
+                    show_diags_only_under_cursor = true,
+                    show_all_diags_on_cursorline = false,
                     enable_on_insert = true,
-                    throttle = 0,
+                    throttle = 180,
                     multilines = {
                         enabled = true,
-                        always_show = true,
+                        always_show = false,
                         trim_whitespaces = true,
                     },
                     virt_texts = {
@@ -101,9 +111,9 @@ return {
                         "LspAttach",
                         "DiagnosticChanged",
                         "BufEnter",
-                        "TextChanged",
-                        "TextChangedI",
-                        "TextChangedP",
+                        "CursorHold",
+                        "CursorHoldI",
+                        "InsertLeave",
                     },
                     override_open_float = true,
                 },
@@ -113,24 +123,28 @@ return {
 
             local function enable_inline_diagnostics(bufnr)
                 tiny_diag.enable()
-                refresh_inline_diagnostics(bufnr)
+                refresh_inline_diagnostics(bufnr, { initial_delay = 0, followup_delay = 120 })
             end
 
             local auto_enable = (vim.g.nvim_config or {}).features.auto_enable_inline_diagnostics
 
             vim.api.nvim_create_autocmd({
                 "BufEnter",
+                "CursorHold",
+                "CursorHoldI",
                 "DiagnosticChanged",
-                "InsertEnter",
                 "InsertLeave",
-                "TextChanged",
-                "TextChangedI",
-                "TextChangedP",
             }, {
                 group = vim.api.nvim_create_augroup("RealtimeInlineDiagnostics", { clear = true }),
                 callback = function(args)
+                    local mode = vim.api.nvim_get_mode().mode
+                    local in_insert = mode:match("^[iR]") ~= nil
+
                     apply_diagnostic_config()
-                    refresh_inline_diagnostics(args.buf)
+                    refresh_inline_diagnostics(args.buf, {
+                        initial_delay = in_insert and 260 or 0,
+                        followup_delay = in_insert and 520 or 140,
+                    })
                 end,
             })
 

@@ -31,7 +31,19 @@ return {
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
 
+      local function can_jump(direction)
+        if luasnip.locally_jumpable then
+          return luasnip.locally_jumpable(direction)
+        end
+
+        return luasnip.jumpable(direction)
+      end
+
       cmp.setup({
+        preselect = cmp.PreselectMode.None,
+        completion = {
+          completeopt = "menu,menuone,noinsert,noselect",
+        },
         snippet = {
           expand = function(args)
             luasnip.lsp_expand(args.body)  -- LuaSnip만 사용
@@ -46,20 +58,31 @@ return {
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-Space>'] = cmp.mapping.complete(),
           ['<C-e>'] = cmp.mapping.abort(),
-          ['<CR>'] = cmp.mapping.confirm({ select = true }),
+          ['<CR>'] = cmp.mapping(function(fallback)
+            if cmp.visible() then
+              cmp.abort()
+            end
+            fallback()
+          end, { 'i', 's' }),
           ['<Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
+              if not cmp.get_selected_entry() then
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+              end
+
+              if not cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false }) then
+                fallback()
+              end
+            elseif can_jump(1) then
+              luasnip.jump(1)
             else
               fallback()
             end
           end, { 'i', 's' }),
           ['<S-Tab>'] = cmp.mapping(function(fallback)
             if cmp.visible() then
-              cmp.select_prev_item()
-            elseif luasnip.jumpable(-1) then
+              cmp.select_prev_item({ behavior = cmp.SelectBehavior.Select })
+            elseif can_jump(-1) then
               luasnip.jump(-1)
             else
               fallback()
