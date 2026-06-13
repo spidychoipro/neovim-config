@@ -45,6 +45,25 @@ return {
         "neovim/nvim-lspconfig",
         config = function()
             local capabilities = require('cmp_nvim_lsp').default_capabilities()
+            local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+
+            local function mason_package_executable(package, pattern)
+                local package_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", package)
+                local matches = vim.fn.glob(vim.fs.joinpath(package_dir, pattern), false, true)
+                return matches[1]
+            end
+
+            local function tool_path(tool, package, pattern)
+                if is_windows then
+                    local mason_path = mason_package_executable(package, pattern)
+                    if mason_path and mason_path ~= "" then
+                        return mason_path
+                    end
+                end
+
+                local path = vim.fn.exepath(tool)
+                return path ~= "" and path or tool
+            end
 
             vim.lsp.config.lua_ls = {
                 cmd = { "lua-language-server" },
@@ -71,7 +90,15 @@ return {
                 cmd = { "bash-language-server", "start" },
                 filetypes = { "sh", "bash" },
                 root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
-                capabilities = capabilities
+                capabilities = capabilities,
+                settings = {
+                    bashIde = {
+                        shellcheckPath = tool_path("shellcheck", "shellcheck", "shellcheck.exe"),
+                        shfmt = {
+                            path = tool_path("shfmt", "shfmt", "shfmt*.exe"),
+                        },
+                    },
+                },
             }
 
             vim.lsp.config.clangd = {
