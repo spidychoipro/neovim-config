@@ -8,7 +8,7 @@ return {
   {
     "L3MON4D3/LuaSnip",
     event = "InsertEnter",
-    build = is_windows and nil or "make install_jsregexp",
+    build = not is_windows and "make install_jsregexp" or false,
     dependencies = {
       "saadparwaiz1/cmp_luasnip",
       "rafamadriz/friendly-snippets",
