@@ -62,7 +62,7 @@ Examples:
 
 ## Yank And Paste
 
-Yanking text now shows a small `Copied` notice near the bottom of the editor. It fades out automatically. If the notice fails, Neovim shows an error message instead of failing silently.
+Yanking text now shows a small bordered `Copied` notice near the bottom of the editor. It fades out automatically. If the notice fails, Neovim shows an error message instead of failing silently.
 
 `yanky.nvim` keeps a simple yank history while preserving the familiar paste keys.
 
