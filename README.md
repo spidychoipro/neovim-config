@@ -16,6 +16,7 @@ This setup treats Neovim as a control center and keeps program execution in a re
 - **Lightweight Git Integration** with Gitsigns.
 - **Enhanced Debugging UX** with Dap UI and auto-detection.
 - **Project-wide Navigation** with Trouble and Telescope.
+- **Fancy Inline Diagnostics** with `tiny-inline-diagnostic.nvim` (VS Code Error Lens style).
 - Formatting with `conform.nvim`.
 - Linting with `nvim-lint`.
 - Session management with `auto-session`.
