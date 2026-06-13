@@ -2,7 +2,7 @@ local M = {}
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 
-function M.get_python_path(workspace)
+function M.find_venv(workspace)
     workspace = workspace or vim.fn.getcwd()
     local venv_names = { ".venv", "venv", "env" }
 
@@ -22,8 +22,22 @@ function M.get_python_path(workspace)
             end
         end
     end
+    return nil
+end
 
-    return is_windows and "python.exe" or "python"
+function M.get_python_path(workspace)
+    local venv = M.find_venv(workspace)
+    if venv then
+        return venv
+    end
+
+    if is_windows then
+        if vim.fn.executable("py") == 1 then
+            return "py"
+        end
+        return "python.exe"
+    end
+    return "python"
 end
 
 return M
