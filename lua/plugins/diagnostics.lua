@@ -12,12 +12,6 @@ local diagnostic_config = {
     virtual_lines = false,
     signs = {
         text = diagnostic_signs,
-        texthl = {
-            [severity.ERROR] = "DiagnosticSignError",
-            [severity.WARN] = "DiagnosticSignWarn",
-            [severity.INFO] = "DiagnosticSignInfo",
-            [severity.HINT] = "DiagnosticSignHint",
-        },
         numhl = {
             [severity.ERROR] = "DiagnosticSignError",
             [severity.WARN] = "DiagnosticSignWarn",
@@ -37,12 +31,6 @@ local diagnostic_config = {
 }
 
 local function apply_diagnostic_config()
-    -- Keep both the Neovim 0.11 signs table and legacy sign names in sync.
-    vim.fn.sign_define("DiagnosticSignError", { text = "E", texthl = "DiagnosticSignError", numhl = "DiagnosticSignError" })
-    vim.fn.sign_define("DiagnosticSignWarn", { text = "W", texthl = "DiagnosticSignWarn", numhl = "DiagnosticSignWarn" })
-    vim.fn.sign_define("DiagnosticSignInfo", { text = "I", texthl = "DiagnosticSignInfo", numhl = "DiagnosticSignInfo" })
-    vim.fn.sign_define("DiagnosticSignHint", { text = "H", texthl = "DiagnosticSignHint", numhl = "DiagnosticSignHint" })
-
     vim.diagnostic.config(diagnostic_config)
     vim.diagnostic.enable(true)
 end

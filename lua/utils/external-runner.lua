@@ -174,7 +174,7 @@ local function open_windows_terminal(info, command, python_info)
     end
 
     local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
-    local script_id = tostring((vim.uv or vim.loop).hrtime())
+    local script_id = tostring(vim.uv.hrtime())
     local runner_script = vim.fs.joinpath(script_dir, "run-" .. script_id .. ".ps1")
     vim.fn.mkdir(script_dir, "p")
 

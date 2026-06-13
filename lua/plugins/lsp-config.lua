@@ -140,7 +140,7 @@ return {
                     return true
                 end
 
-                local home = normalize_path((vim.uv or vim.loop).os_homedir())
+                local home = normalize_path(vim.uv.os_homedir())
                 local appdata = normalize_path(os.getenv("APPDATA"))
                 local localappdata = normalize_path(os.getenv("LOCALAPPDATA"))
 
@@ -176,14 +176,13 @@ return {
                 flags = realtime_lsp_flags,
                 root_dir = function(bufnr, on_dir)
                     local fname = vim.api.nvim_buf_get_name(bufnr)
-                    local util = require("lspconfig.util")
-                    local found = util.root_pattern(
+                    local found = vim.fs.root(bufnr, {
                         ".luarc.json",
                         ".luarc.jsonc",
                         ".stylua.toml",
                         "stylua.toml",
                         ".git"
-                    )(fname)
+                    })
 
                     on_dir(found or vim.fn.fnamemodify(fname, ":h"))
                 end,
@@ -205,8 +204,7 @@ return {
                 workspace_required = false,
                 root_dir = function (bufnr, on_dir)
                     local fname = vim.api.nvim_buf_get_name(bufnr)
-                    local util = require("lspconfig.util")
-                    local project_root = util.root_pattern(
+                    local project_root = vim.fs.root(bufnr, {
                         "pyrightconfig.json",
                         "basedpyrightconfig.json",
                         "pyproject.toml",
@@ -214,14 +212,14 @@ return {
                         "setup.cfg",
                         "tox.ini",
                         "requirements.txt"
-                    )(fname)
+                    })
 
                     if project_root then
                         on_dir(project_root)
                         return
                     end
 
-                    local git_root = util.root_pattern(".git")(fname)
+                    local git_root = vim.fs.root(bufnr, ".git")
                     if git_root and not is_expensive_python_root(git_root) then
                         on_dir(git_root)
                         return
