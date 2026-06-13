@@ -19,7 +19,7 @@ return {
                 options = {
                     -- Show diagnostics only on the current line
                     -- Set to false to show on all lines (more like VS Code Error Lens)
-                    show_diags_only_under_cursor = true,
+                    show_diags_only_under_cursor = false,
                     -- Display diagnostics when in insert mode
                     enable_on_insert = false,
                     -- Use a specific severity to show
@@ -36,6 +36,30 @@ return {
             vim.diagnostic.config(normal_diagnostics)
 
             local diagnostics_augroup = vim.api.nvim_create_augroup("NormalModeDiagnostics", { clear = true })
+            local function render_inline_diagnostics()
+                local bufnr = vim.api.nvim_get_current_buf()
+
+                local function render()
+                    if not vim.api.nvim_buf_is_valid(bufnr) or vim.fn.mode():find("i", 1, true) then
+                        return
+                    end
+
+                    local ok_state, state = pcall(require, "tiny-inline-diagnostic.state")
+                    if ok_state then
+                        state.enable()
+                    end
+
+                    local ok_diag, diag = pcall(require, "tiny-inline-diagnostic")
+                    local ok_renderer, renderer = pcall(require, "tiny-inline-diagnostic.renderer")
+                    if ok_diag and ok_renderer and diag.config then
+                        renderer.safe_render(diag.config, bufnr)
+                    end
+                end
+
+                vim.schedule(render)
+                vim.defer_fn(render, 80)
+                vim.defer_fn(render, 200)
+            end
 
             vim.api.nvim_create_autocmd("InsertEnter", {
                 group = diagnostics_augroup,
@@ -56,14 +80,16 @@ return {
                 group = diagnostics_augroup,
                 callback = function()
                     vim.diagnostic.config(normal_diagnostics)
+                    render_inline_diagnostics()
+                end,
+            })
 
-                    vim.schedule(function()
-                        local ok_diag, diag = pcall(require, "tiny-inline-diagnostic")
-                        local ok_renderer, renderer = pcall(require, "tiny-inline-diagnostic.renderer")
-                        if ok_diag and ok_renderer and diag.config then
-                            renderer.safe_render(diag.config, vim.api.nvim_get_current_buf())
-                        end
-                    end)
+            vim.api.nvim_create_autocmd("DiagnosticChanged", {
+                group = diagnostics_augroup,
+                callback = function()
+                    if not vim.fn.mode():find("i", 1, true) then
+                        render_inline_diagnostics()
+                    end
                 end,
             })
 
