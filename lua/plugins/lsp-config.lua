@@ -30,8 +30,7 @@ return {
                     "stylua",
                 },
                 auto_update = false,
-                run_on_start = true,
-                start_delay = 3000,
+                run_on_start = false,
             })
         end,
     },

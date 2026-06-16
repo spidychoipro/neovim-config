@@ -42,6 +42,15 @@ vim.opt.smartcase = editor.smartcase
 vim.opt.undofile = editor.undofile
 vim.opt.sessionoptions = editor.sessionoptions
 
+vim.opt.lazyredraw = true
+vim.opt.synmaxcol = 200
+vim.opt.redrawtime = 1500
+vim.opt.ttimeoutlen = 0
+vim.opt.timeoutlen = 500
+vim.opt.shortmess:append("sI")
+vim.opt.showmode = false
+vim.opt.shada = "!,'500,<50,s10,h"
+
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
   local function prepend_path(path)
@@ -59,13 +68,15 @@ if is_windows then
       prepend_path(vim.fn.expand(path))
     end
 
-    for _, pattern in ipairs(windows.winget_patterns or {}) do
-      for _, path in ipairs(vim.fn.glob(vim.fn.expand(pattern), false, true)) do
-        if vim.fn.isdirectory(path) == 1 then
-          prepend_path(path)
+    vim.defer_fn(function()
+      for _, pattern in ipairs(windows.winget_patterns or {}) do
+        for _, path in ipairs(vim.fn.glob(vim.fn.expand(pattern), false, true)) do
+          if vim.fn.isdirectory(path) == 1 then
+            prepend_path(path)
+          end
         end
       end
-    end
+    end, 5000)
   end)
 end
 
@@ -81,4 +92,28 @@ if keymaps.external_runner then
   vim.keymap.set("n", "<leader>r", function()
     require("utils.external-runner").run_current_file()
   end, { desc = "Run current file" })
+end
+
+if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
+  vim.api.nvim_create_autocmd("BufReadPre", {
+    group = vim.api.nvim_create_augroup("LargeFileOpts", { clear = true }),
+    callback = function(args)
+      local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(args.buf))
+      if size > 1024 * 512 then
+        vim.bo[args.buf].syntax = false
+        vim.b[args.buf].large_file = true
+        vim.bo[args.buf].undofile = false
+      end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("LargeFileDisableTreesitter", { clear = true }),
+    pattern = "*",
+    callback = function(args)
+      if vim.b[args.buf] and vim.b[args.buf].large_file then
+        pcall(vim.treesitter.stop, args.buf)
+      end
+    end,
+  })
 end

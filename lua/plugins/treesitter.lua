@@ -22,7 +22,15 @@ return {
                 "vimdoc",
             }
 
-            treesitter.setup()
+            treesitter.setup({
+                highlight = {
+                    enable = true,
+                    max_file_lines = 5000,
+                },
+                incremental_selection = { enable = false },
+                textobjects = { enable = false },
+                indent = { enable = true },
+            })
 
             vim.treesitter.language.register("bash", { "sh", "bash", "zsh" })
             vim.treesitter.language.register("powershell", { "ps1", "psm1", "psd1", "powershell" })

@@ -29,6 +29,9 @@ require("lazy").setup("plugins", {
     hererocks = false,
   },
   performance = {
+    cache = {
+      enabled = true,
+    },
     rtp = {
       disabled_plugins = {
         "gzip",
