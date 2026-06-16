@@ -46,15 +46,50 @@ return {
                 return false
             end
 
+            local function get_available_parser_dirs()
+                local dirs = { vim.fs.joinpath(vim.fn.stdpath("data"), "parser") }
+
+                local prog = vim.v.progpath
+                if prog then
+                    local bundled = vim.fs.joinpath(vim.fs.dirname(prog), "..", "lib", "nvim", "parser")
+                    table.insert(dirs, vim.fs.normalize(bundled))
+                end
+
+                return dirs
+            end
+
+            local function get_installed_parsers()
+                local installed = {}
+                for _, dir in ipairs(get_available_parser_dirs()) do
+                    if vim.fn.isdirectory(dir) == 1 then
+                        for _, dll in ipairs(vim.fn.glob(vim.fs.joinpath(dir, "*.dll"), false, true)) do
+                            local name = vim.fn.fnamemodify(dll, ":t:r")
+                            installed[name] = true
+                        end
+                    end
+                end
+                return installed
+            end
+
+            local function has_c_compiler()
+                if vim.fn.executable("cl.exe") == 1 then
+                    return true
+                end
+                if vim.fn.executable("gcc") == 1 then
+                    return true
+                end
+                if vim.fn.executable("cc") == 1 then
+                    return true
+                end
+                return false
+            end
+
             local function ensure_missing_parsers()
                 if vim.env.NVIM_SKIP_TS_AUTO_INSTALL == "1" or is_plugin_manager_command() or not treesitter.get_installed then
                     return
                 end
 
-                local installed = {}
-                for _, parser in ipairs(treesitter.get_installed("parsers")) do
-                    installed[parser] = true
-                end
+                local installed = get_installed_parsers()
 
                 local missing = {}
                 for _, parser in ipairs(parsers) do
@@ -63,9 +98,24 @@ return {
                     end
                 end
 
-                if #missing > 0 then
-                    treesitter.install(missing)
+                if #missing == 0 then
+                    return
                 end
+
+                if not has_c_compiler() then
+                    vim.schedule(function()
+                        vim.notify(
+                            "Missing tree-sitter parsers: "
+                            .. table.concat(missing, ", ")
+                            .. ". Install MSVC Build Tools (cl.exe) or a C compiler to compile them,"
+                            .. " or manually download parser DLLs.",
+                            vim.log.levels.WARN
+                        )
+                    end)
+                    return
+                end
+
+                treesitter.install(missing)
             end
 
             vim.schedule(ensure_missing_parsers)
