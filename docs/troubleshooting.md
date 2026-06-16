@@ -59,6 +59,39 @@ Check parser health:
 :checkhealth nvim-treesitter vim.treesitter
 ```
 
+### Windows: Parser compilation fails with "Error: program not found" (cl.exe)
+
+If you see multiple `[nvim-treesitter/install/<lang>] error: Error: Failed to compile parser` messages on startup,
+the `ensure_missing_parsers()` function is trying to build parsers that are not bundled with Neovim, but no C compiler
+(`cl.exe`, `gcc`, or `cc`) was found on your system.
+
+**Root cause:** Neovim 0.12 ships bundled parsers (c, lua, markdown, markdown_inline, query, vim, vimdoc) at
+`lib/nvim/parser/`, but the nvim-treesitter plugin's `get_installed()` only checks the user data directory and
+misses them. This made the config attempt to re-install already-bundled parsers, and also attempt to compile
+non-bundled parsers (bash, cpp, json, powershell, python) without a compiler.
+
+**Fix applied in this config:** `lua/plugins/treesitter.lua` now scans **both** the user parser directory and the
+Neovim bundled parser directory for `.dll` files, and checks for a C compiler before attempting any compile-based
+install. Missing parsers are reported as a warning instead of crashing.
+
+**To install missing parsers** (bash, cpp, json, powershell, python):
+
+1. Install a C compiler:
+   - **MSVC (recommended on Windows):** Install [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2022)
+     with the "Desktop development with C++" workload, or install the full Visual Studio.
+   - **MinGW-w64 / GCC:** Install MSYS2 or a MinGW-w64 toolchain.
+
+2. After installing a compiler, restart Neovim and run:
+   ```vim
+   :TSInstall bash cpp json powershell python
+   ```
+
+Alternatively, set the environment variable to skip auto-install entirely:
+
+```powershell
+$env:NVIM_SKIP_TS_AUTO_INSTALL=1
+```
+
 ## Neo-tree Opens Slowly
 
 If Neo-tree appears empty for a while or Neovim pauses when opening the file explorer, check whether the current directory or your Windows home directory is accidentally a very large Git worktree.

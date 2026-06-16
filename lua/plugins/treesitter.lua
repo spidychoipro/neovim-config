@@ -103,15 +103,6 @@ return {
                 end
 
                 if not has_c_compiler() then
-                    vim.schedule(function()
-                        vim.notify(
-                            "Missing tree-sitter parsers: "
-                            .. table.concat(missing, ", ")
-                            .. ". Install MSVC Build Tools (cl.exe) or a C compiler to compile them,"
-                            .. " or manually download parser DLLs.",
-                            vim.log.levels.WARN
-                        )
-                    end)
                     return
                 end
 
