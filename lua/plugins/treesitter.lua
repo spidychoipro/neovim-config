@@ -93,7 +93,7 @@ return {
             end
 
             local function ensure_missing_parsers()
-                if vim.env.NVIM_SKIP_TS_AUTO_INSTALL == "1" or is_plugin_manager_command() or not treesitter.get_installed then
+                if vim.env.NVIM_SKIP_TS_AUTO_INSTALL == "1" or is_plugin_manager_command() then
                     return
                 end
 
@@ -114,7 +114,10 @@ return {
                     return
                 end
 
-                treesitter.install(missing)
+                local ok, install_module = pcall(require, "nvim-treesitter.install")
+                if ok then
+                    install_module.install(missing)
+                end
             end
 
             vim.schedule(ensure_missing_parsers)

@@ -170,10 +170,7 @@ return {
         })
       })
 
-      -- 이거 꼭 넣어줘야 LSP에서 capabilities 받음!
       local capabilities = require('cmp_nvim_lsp').default_capabilities()
-      -- 전역 변수로 저장 → lsp-config.lua에서 사용
-      vim.g.cmp_capabilities = capabilities
     end,
   },
 }
