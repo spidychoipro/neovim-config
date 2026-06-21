@@ -162,12 +162,28 @@ return {
           end, { 'i', 's' }),
         }),
         sources = cmp.config.sources({
-          { name = 'nvim_lsp' },      -- LSP 자동완성 (이게 핵심!)
+          { name = 'nvim_lsp' },      -- LSP 자동완성
           { name = 'luasnip' },       -- 스니펫
         }, {
           { name = 'buffer' },        -- 버퍼에서 단어
           { name = 'path' },          -- 파일 경로
         })
+      })
+
+      cmp.setup.cmdline(':', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = cmp.config.sources({
+          { name = 'cmdline' },
+        }, {
+          { name = 'path' },
+        }),
+      })
+
+      cmp.setup.cmdline('/', {
+        mapping = cmp.mapping.preset.cmdline(),
+        sources = {
+          { name = 'buffer' },
+        },
       })
 
     end,

@@ -109,10 +109,15 @@ return {
         batch_delay = 20,
         max_lines = 5000,
       },
+      indent_guides = {
+        size = 1,
+        follow = true,
+      },
       filesystem = {
         async_directory_scan = "auto",
         scan_mode = "shallow",
         bind_to_cwd = true,
+        follow_current_file = { enabled = true },
         use_libuv_file_watcher = false,
         filtered_items = {
           hide_by_name = {

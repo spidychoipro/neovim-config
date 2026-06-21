@@ -4,9 +4,20 @@ return {
   config = function()
     require('lualine').setup({
       options = {
-        theme = 'dracula'
+        theme = 'dracula',
+        section_separators = '',
+        component_separators = '',
       },
       sections = {
+        lualine_a = { 'mode' },
+        lualine_b = {
+          { 'branch', icon = '' },
+          {
+            'diff',
+            symbols = { added = '+', modified = '~', removed = '-' },
+          },
+        },
+        lualine_c = { 'filename' },
         lualine_x = {
           {
             "diagnostics",
@@ -15,11 +26,18 @@ return {
             colored = true,
             update_in_insert = true,
           },
-          "encoding",
-          "fileformat",
-          "filetype",
+          'encoding',
+          'fileformat',
+          'filetype',
+          'progress',
         },
       },
+      inactive_sections = {
+        lualine_a = {},
+        lualine_b = {},
+        lualine_c = { 'filename' },
+        lualine_x = { 'location' },
+      },
     })
-  end
+  end,
 }

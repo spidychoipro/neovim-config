@@ -11,6 +11,10 @@ return {
       { "<leader>/", "<cmd>Telescope live_grep<CR>", desc = "Live grep" },
       { "<leader>fb", "<cmd>Telescope buffers<CR>", desc = "Find buffers" },
       { "<leader>fh", "<cmd>Telescope help_tags<CR>", desc = "Find help" },
+      { "<leader>'", "<cmd>Telescope resume<CR>", desc = "Resume last picker" },
+      { "<leader>gt", "<cmd>Telescope git_status<CR>", desc = "Git status" },
+      { "<leader>gc", "<cmd>Telescope git_commits<CR>", desc = "Git commits" },
+      { "<leader>gC", "<cmd>Telescope git_branches<CR>", desc = "Git branches" },
     },
     config = function()
       local telescope = require("telescope")

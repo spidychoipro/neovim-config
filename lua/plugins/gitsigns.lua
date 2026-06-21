@@ -60,6 +60,11 @@ return {
                     map("n", "<leader>gb", function()
                         gs.blame_line({ full = true })
                     end, { desc = "Blame line" })
+                    map("n", "<leader>gB", function()
+                        gs.toggle_line_blame()
+                    end, { desc = "Toggle line blame" })
+                    map("n", "<leader>gS", gs.stage_buffer, { desc = "Stage buffer" })
+                    map("n", "<leader>gR", gs.reset_buffer, { desc = "Reset buffer" })
                 end,
             })
         end,
