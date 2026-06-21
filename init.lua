@@ -45,3 +45,4 @@ require("lazy").setup("plugins", {
   },
 })
 local_config.load("user.after")
+require("lsp-init")

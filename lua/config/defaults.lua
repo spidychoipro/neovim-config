@@ -73,8 +73,28 @@ if py_scripts then
   table.insert(defaults.windows.extra_paths, py_scripts)
 end
 
+local function validate_user_config(user_config)
+  local known_keys = {
+    leader = true, providers = true, editor = true,
+    features = true, keymaps = true, windows = true,
+  }
+
+  for key, _ in pairs(user_config) do
+    if not known_keys[key] then
+      vim.schedule(function()
+        vim.notify(
+          string.format("[defaults] Unknown config key '%s' in user.lua — may be misspelled or outdated", key),
+          vim.log.levels.WARN
+        )
+      end)
+    end
+  end
+end
+
 function M.setup()
-  vim.g.nvim_config = vim.tbl_deep_extend("keep", vim.g.nvim_config or {}, defaults)
+  local user_config = vim.g.nvim_config or {}
+  validate_user_config(user_config)
+  vim.g.nvim_config = vim.tbl_deep_extend("keep", user_config, defaults)
 end
 
 return M

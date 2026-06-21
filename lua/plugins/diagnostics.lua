@@ -122,8 +122,6 @@ return {
 
             vim.api.nvim_create_autocmd({
                 "BufEnter",
-                "CursorHold",
-                "CursorHoldI",
                 "DiagnosticChanged",
                 "InsertLeave",
             }, {
