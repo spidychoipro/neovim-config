@@ -1,67 +1,19 @@
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-
-local function current_file()
-    if vim.bo.buftype ~= "" then
-        return nil
-    end
-
-    local file = vim.api.nvim_buf_get_name(0)
-    if file == "" then
-        return nil
-    end
-
-    return file
-end
-
-local function current_name(path)
-    return vim.fs.basename(path)
-end
-
-local function current_dir(path)
-    return vim.fs.dirname(path)
-end
-
-local function current_stem(path)
-    local basename = current_name(path)
-    return basename:match("^(.*)%.") or basename
-end
-
-local function find_bash()
-    if vim.fn.executable("bash") == 1 then
-        return "bash"
-    end
-
-    if is_windows then
-        local git_bash = "C:\\Program Files\\Git\\bin\\bash.exe"
-        if vim.fn.filereadable(git_bash) == 1 then
-            return git_bash
-        end
-    end
-end
-
-local function find_lua()
-    if vim.fn.executable("lua") == 1 then
-        return "lua"
-    end
-
-    if vim.fn.executable("luajit") == 1 then
-        return "luajit"
-    end
-end
+local runner = require("utils.runner")
 
 return {
     generator = function()
         local overseer = require("overseer")
-        local file = current_file()
+        local info = runner.file_info()
 
-        if not file then
+        if not info then
             return {}
         end
 
-        local filetype = vim.bo.filetype
-        local dir = current_dir(file)
-        local name = current_name(file)
-        local stem = current_stem(file)
+        local filetype = info.filetype
+        local dir = info.dir
+        local name = info.name
+        local stem = info.stem
+        local file = info.file
         local templates = {}
 
         if filetype == "python" and vim.fn.executable("python") == 1 then
@@ -80,7 +32,7 @@ return {
             })
         end
 
-        local lua_cmd = find_lua()
+        local lua_cmd = runner.find_lua()
         if filetype == "lua" and lua_cmd then
             table.insert(templates, {
                 name = "Run current Lua file",
@@ -95,7 +47,7 @@ return {
             })
         end
 
-        local bash_cmd = find_bash()
+        local bash_cmd = runner.find_bash()
         if (filetype == "sh" or filetype == "bash") and bash_cmd then
             table.insert(templates, {
                 name = "Run current shell script",
@@ -110,7 +62,7 @@ return {
             })
         end
 
-        local pwsh_cmd = is_windows and "pwsh.exe" or "pwsh"
+        local pwsh_cmd = runner.is_windows and "pwsh.exe" or "pwsh"
         if filetype == "ps1" and vim.fn.executable(pwsh_cmd) == 1 then
             table.insert(templates, {
                 name = "Run current PowerShell script",
@@ -125,7 +77,7 @@ return {
             })
         end
 
-        local c_output = vim.fs.joinpath(dir, stem .. (is_windows and ".exe" or ""))
+        local c_output = vim.fs.joinpath(dir, stem .. (runner.is_windows and ".exe" or ""))
         if filetype == "c" and vim.fn.executable("clang") == 1 then
             table.insert(templates, {
                 name = "Build current C file",
@@ -178,7 +130,7 @@ return {
             })
         end
 
-        local cpp_output = vim.fs.joinpath(dir, stem .. (is_windows and ".exe" or ""))
+        local cpp_output = vim.fs.joinpath(dir, stem .. (runner.is_windows and ".exe" or ""))
         if filetype == "cpp" and vim.fn.executable("clang++") == 1 then
             table.insert(templates, {
                 name = "Build current C++ file",

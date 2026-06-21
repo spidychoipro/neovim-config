@@ -21,14 +21,10 @@ return {
 		config = function()
 			local dap = require("dap")
 			local dapui = require("dapui")
+			local mason = require("utils.mason")
 			local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
-			local mason_packages = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages")
-			local debugpy_python = is_windows
-				and vim.fs.joinpath(mason_packages, "debugpy", "venv", "Scripts", "python.exe")
-				or vim.fs.joinpath(mason_packages, "debugpy", "venv", "bin", "python")
-			local codelldb = is_windows
-				and vim.fs.joinpath(mason_packages, "codelldb", "extension", "adapter", "codelldb.exe")
-				or vim.fs.joinpath(mason_packages, "codelldb", "extension", "adapter", "codelldb")
+			local debugpy_python = mason.find_bin_with_fallback("debugpy", is_windows and "python.exe" or "python", is_windows and "venv/Scripts/python.exe" or "venv/bin/python")
+			local codelldb = mason.find_bin_with_fallback("codelldb", is_windows and "codelldb.exe" or "codelldb", is_windows and "extension/adapter/codelldb.exe" or "extension/adapter/codelldb")
 
 			dapui.setup({
 				layouts = {

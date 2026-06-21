@@ -1,5 +1,20 @@
 local M = {}
 
+local function find_latest_python_scripts()
+  local appdata = vim.fn.expand("$APPDATA")
+  if appdata == "" or appdata == "$APPDATA" then
+    return nil
+  end
+
+  local dirs = vim.fn.glob(appdata .. "\\Python\\Python3*\\Scripts", false, true)
+  if #dirs > 0 then
+    table.sort(dirs)
+    return dirs[#dirs]
+  end
+
+  return nil
+end
+
 local defaults = {
   leader = " ",
   providers = {
@@ -44,7 +59,6 @@ local defaults = {
       "$LOCALAPPDATA\\Microsoft\\WinGet\\Links",
       "$LOCALAPPDATA\\Microsoft\\WindowsApps",
       "$APPDATA\\npm",
-      "$APPDATA\\Python\\Python314\\Scripts",
     },
     winget_patterns = {
       "$LOCALAPPDATA\\Microsoft\\WinGet\\Packages\\ezwinports.make_*\\bin",
@@ -53,6 +67,11 @@ local defaults = {
     additional_paths = {},
   },
 }
+
+local py_scripts = find_latest_python_scripts()
+if py_scripts then
+  table.insert(defaults.windows.extra_paths, py_scripts)
+end
 
 function M.setup()
   vim.g.nvim_config = vim.tbl_deep_extend("keep", vim.g.nvim_config or {}, defaults)

@@ -88,37 +88,11 @@ return {
                 "**/AppData/Roaming/Python",
             }
 
-            local function mason_bin_executable(tool)
-                if not is_windows then
-                    return nil
-                end
-
-                local mason_bin = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin")
-                for _, suffix in ipairs({ ".cmd", ".exe", ".bat", "" }) do
-                    local candidate = vim.fs.joinpath(mason_bin, tool .. suffix)
-                    if vim.fn.filereadable(candidate) == 1 then
-                        return candidate
-                    end
-                end
-            end
-
-            local function mason_package_executable(package, pattern)
-                local package_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", package)
-                local matches = vim.fn.glob(vim.fs.joinpath(package_dir, pattern), false, true)
-                return matches[1]
-            end
-
-            local function tool_path(tool, package, pattern)
-                local mason_bin_path = mason_bin_executable(tool)
+            local function tool_path(tool, package, search_pattern)
+                local mason = require("utils.mason")
+                local mason_bin_path = mason.find_bin_with_fallback(package, tool, search_pattern)
                 if mason_bin_path then
                     return mason_bin_path
-                end
-
-                if is_windows then
-                    local mason_path = mason_package_executable(package, pattern)
-                    if mason_path and mason_path ~= "" then
-                        return mason_path
-                    end
                 end
 
                 local path = vim.fn.exepath(tool)
