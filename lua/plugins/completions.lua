@@ -3,7 +3,6 @@ local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 return {
   {
     "hrsh7th/cmp-nvim-lsp",
-    lazy = true,
   },
   {
     "L3MON4D3/LuaSnip",

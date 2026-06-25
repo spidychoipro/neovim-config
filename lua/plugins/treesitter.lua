@@ -36,13 +36,6 @@ return {
             vim.treesitter.language.register("powershell", { "ps1", "psm1", "psd1", "powershell" })
             vim.treesitter.language.register("vimdoc", { "help", "vimdoc" })
 
-            local powershell_filetypes = {
-                powershell = true,
-                ps1 = true,
-                psd1 = true,
-                psm1 = true,
-            }
-
             local function is_plugin_manager_command()
                 for _, arg in ipairs(vim.v.argv or {}) do
                     local value = tostring(arg)
@@ -121,39 +114,6 @@ return {
             end
 
             vim.schedule(ensure_missing_parsers)
-
-            vim.api.nvim_create_autocmd("FileType", {
-                group = vim.api.nvim_create_augroup("TreesitterFeatures", { clear = true }),
-                pattern = {
-                    "bash",
-                    "c",
-                    "cpp",
-                    "help",
-                    "json",
-                    "lua",
-                    "markdown",
-                    "powershell",
-                    "ps1",
-                    "psd1",
-                    "psm1",
-                    "python",
-                    "query",
-                    "sh",
-                    "vim",
-                    "vimdoc",
-                    "zsh",
-                },
-                callback = function(args)
-                    local ok = pcall(vim.treesitter.start, args.buf)
-                    if ok then
-                        if powershell_filetypes[vim.bo[args.buf].filetype] then
-                            vim.bo[args.buf].syntax = ""
-                        end
-
-                        vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
-                    end
-                end,
-            })
         end,
     },
 }

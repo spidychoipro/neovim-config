@@ -1,6 +1,17 @@
 local M = {}
 local runner = require("utils.runner")
 
+local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
+
+vim.fn.mkdir(script_dir, "p")
+for _, f in ipairs(vim.fn.readdir(script_dir) or {}) do
+  local full = vim.fs.joinpath(script_dir, f)
+  local age = vim.uv.now() - ((vim.uv.fs_stat(full) or {}).mtime or {}).sec * 1000 or 0
+  if age > 86400000 then
+    pcall(vim.fn.delete, full)
+  end
+end
+
 local function find_wt()
     if runner.executable("wt") then
         return "wt"
@@ -100,10 +111,8 @@ local function open_windows_terminal(info, command, python_info)
         return
     end
 
-    local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
     local script_id = tostring(vim.uv.hrtime())
     local runner_script = vim.fs.joinpath(script_dir, "run-" .. script_id .. ".ps1")
-    vim.fn.mkdir(script_dir, "p")
 
     local script_lines = {
         "$Host.UI.RawUI.WindowTitle = 'Run current file'",
@@ -155,6 +164,8 @@ local function open_windows_terminal(info, command, python_info)
     local success, job = pcall(vim.fn.jobstart, job_cmd, { detach = true })
 
     if not success or job <= 0 then
+        pcall(vim.fn.delete, runner_script)
+
         if wt then
             local fallback_cmd = {
                 "cmd.exe",
@@ -168,7 +179,10 @@ local function open_windows_terminal(info, command, python_info)
                 "-File",
                 runner_script,
             }
-            pcall(vim.fn.jobstart, fallback_cmd, { detach = true })
+            local ok2, job2 = pcall(vim.fn.jobstart, fallback_cmd, { detach = true })
+            if not ok2 or job2 <= 0 then
+                pcall(vim.fn.delete, runner_script)
+            end
         else
             runner.notify("Failed to open terminal", vim.log.levels.ERROR)
         end

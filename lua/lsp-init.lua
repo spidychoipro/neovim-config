@@ -38,9 +38,6 @@ end
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 local single_file_workspaces = {}
-local realtime_lsp_flags = {
-  debounce_text_changes = 80,
-}
 local python_analysis_exclude = {
   "**/.git",
   "**/.hg",
@@ -125,7 +122,6 @@ vim.lsp.config("lua_ls", {
   cmd = { tool_path("lua-language-server", "lua-language-server", "bin/lua-language-server.exe") },
   filetypes = { "lua" },
   capabilities = capabilities,
-  flags = realtime_lsp_flags,
   root_dir = function(bufnr, on_dir)
     local fname = vim.api.nvim_buf_get_name(bufnr)
     local found = vim.fs.root(bufnr, {
@@ -151,7 +147,6 @@ vim.lsp.config("basedpyright", {
   cmd = { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" },
   filetypes = {"python"},
   capabilities = capabilities,
-  flags = realtime_lsp_flags,
   root_markers = {},
   workspace_required = false,
   root_dir = function (bufnr, on_dir)
@@ -217,7 +212,6 @@ vim.lsp.config("bashls", {
   filetypes = { "sh", "bash" },
   root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
   capabilities = capabilities,
-  flags = realtime_lsp_flags,
   settings = {
     bashIde = {
       shellcheckPath = tool_path("shellcheck", "shellcheck", "shellcheck.exe"),
@@ -238,7 +232,6 @@ vim.lsp.config("clangd", {
     "--fallback-style=llvm",
   },
   filetypes = { "c", "cpp", "objc", "objcpp", "cuda", "proto" },
-  flags = realtime_lsp_flags,
   root_markers = {
     "compile_commands.json",
     "compile_flags.txt",
@@ -258,7 +251,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
     vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP hover" }))
     vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "List references" }))
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
     vim.keymap.set({ 'n', 'v' }, '<leader>la', vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
     vim.keymap.set('n', '<leader>lr', vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))

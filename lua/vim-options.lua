@@ -42,7 +42,7 @@ vim.opt.smartcase = editor.smartcase
 vim.opt.undofile = editor.undofile
 vim.opt.sessionoptions = editor.sessionoptions
 
-vim.opt.lazyredraw = true
+vim.opt.lazyredraw = false
 vim.opt.synmaxcol = 200
 vim.opt.redrawtime = 1500
 vim.opt.ttimeoutlen = 0
@@ -94,26 +94,24 @@ if keymaps.external_runner then
   end, { desc = "Run current file" })
 end
 
-if vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1 then
-  vim.api.nvim_create_autocmd("BufReadPre", {
-    group = vim.api.nvim_create_augroup("LargeFileOpts", { clear = true }),
-    callback = function(args)
-      local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(args.buf))
-      if size > 1024 * 512 then
-        vim.bo[args.buf].syntax = false
-        vim.b[args.buf].large_file = true
-        vim.bo[args.buf].undofile = false
-      end
-    end,
-  })
+vim.api.nvim_create_autocmd("BufReadPre", {
+  group = vim.api.nvim_create_augroup("LargeFileOpts", { clear = true }),
+  callback = function(args)
+    local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(args.buf))
+    if size > 1024 * 512 then
+      vim.bo[args.buf].syntax = false
+      vim.b[args.buf].large_file = true
+      vim.bo[args.buf].undofile = false
+    end
+  end,
+})
 
-  vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("LargeFileDisableTreesitter", { clear = true }),
-    pattern = "*",
-    callback = function(args)
-      if vim.b[args.buf] and vim.b[args.buf].large_file then
-        pcall(vim.treesitter.stop, args.buf)
-      end
-    end,
-  })
-end
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("LargeFileDisableTreesitter", { clear = true }),
+  pattern = "*",
+  callback = function(args)
+    if vim.b[args.buf] and vim.b[args.buf].large_file then
+      pcall(vim.treesitter.stop, args.buf)
+    end
+  end,
+})

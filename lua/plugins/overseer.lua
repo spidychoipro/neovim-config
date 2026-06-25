@@ -14,7 +14,7 @@ return {
             {
                 "<leader>tr",
                 function()
-                    if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified then
+                    if vim.bo.buftype == "" and vim.bo.modifiable and not vim.bo.readonly and vim.bo.modified then
                         vim.cmd("write")
                     end
                     local overseer = require("overseer")
@@ -25,7 +25,7 @@ return {
             {
                 "<leader>tb",
                 function()
-                    if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified then
+                    if vim.bo.buftype == "" and vim.bo.modifiable and not vim.bo.readonly and vim.bo.modified then
                         vim.cmd("write")
                     end
                     local overseer = require("overseer")

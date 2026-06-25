@@ -111,8 +111,6 @@ return {
                 },
             })
 
-            apply_diagnostic_config()
-
             local function enable_inline_diagnostics(bufnr)
                 tiny_diag.enable()
                 refresh_inline_diagnostics(bufnr)
@@ -127,7 +125,6 @@ return {
             }, {
                 group = vim.api.nvim_create_augroup("RealtimeInlineDiagnostics", { clear = true }),
                 callback = function(args)
-                    apply_diagnostic_config()
                     refresh_inline_diagnostics(args.buf)
                 end,
             })
