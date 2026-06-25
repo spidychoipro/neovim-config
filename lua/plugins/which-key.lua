@@ -1,5 +1,9 @@
 return {
     {
+        "echasnovski/mini.icons",
+        lazy = true,
+    },
+    {
         "folke/which-key.nvim",
         event = "VeryLazy",
         opts = {
