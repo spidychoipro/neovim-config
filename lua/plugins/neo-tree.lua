@@ -12,16 +12,29 @@ return {
       {
         "<C-n>",
         function()
-          require("neo-tree.command").execute({
-            source = "filesystem",
-            position = "left",
-            reveal = true,
-          })
+          if vim.bo.filetype == "neo-tree" then
+            require("neo-tree.command").execute({ action = "close" })
+          else
+            require("neo-tree.command").execute({
+              source = "filesystem",
+              position = "left",
+              reveal = true,
+            })
+          end
         end,
-        desc = "Reveal file explorer",
+        desc = "Focus or close file explorer",
       },
     },
     opts = {
+      close_if_last_window = true,
+      event_handlers = {
+        {
+          event = "file_opened",
+          handler = function()
+            require("neo-tree").close_all()
+          end,
+        },
+      },
       enable_diagnostics = true,
       enable_git_status = true,
       git_status_async = true,
@@ -30,6 +43,13 @@ return {
         batch_size = 500,
         batch_delay = 20,
         max_lines = 5000,
+      },
+      window = {
+        mappings = {
+          ["<esc>"] = function()
+            vim.cmd("wincmd p")
+          end,
+        },
       },
       indent_guides = {
         size = 1,
