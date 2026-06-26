@@ -1,6 +1,7 @@
 return {
   require("plugins.alpha"),
   require("plugins.auto-session"),
+  require("plugins.comment"),
   require("plugins.completions"),
   require("plugins.conform-lint"),
   require("plugins.debugging"),
@@ -19,4 +20,8 @@ return {
   require("plugins.trouble"),
   require("plugins.which-key"),
   require("plugins.yanky"),
+
+  {
+      dir = "C:/Users/swpar/plugin/hanvim.nvim",
+  }
 }
