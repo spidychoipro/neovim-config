@@ -30,10 +30,8 @@ return {
     config = function()
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
-      local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
       local tab_confirming_completion = false
       local tab_confirm_token = 0
-      local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
 
       local function can_jump(direction)
         if luasnip.locally_jumpable then
@@ -73,14 +71,21 @@ return {
         vim.api.nvim_win_set_cursor(0, { row, col + 1 })
       end
 
-      cmp_autopairs_filetypes['*']['('].handler = add_call_parentheses
-      if cmp_autopairs_filetypes.python then
-        cmp_autopairs_filetypes.python['('].handler = add_call_parentheses
-      end
+      local cmp_confirm_done
 
-      local cmp_confirm_done = cmp_autopairs.on_confirm_done({
-        filetypes = cmp_autopairs_filetypes,
-      })
+      vim.schedule(function()
+        local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
+        local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
+
+        cmp_autopairs_filetypes['*']['('].handler = add_call_parentheses
+        if cmp_autopairs_filetypes.python then
+          cmp_autopairs_filetypes.python['('].handler = add_call_parentheses
+        end
+
+        cmp_confirm_done = cmp_autopairs.on_confirm_done({
+          filetypes = cmp_autopairs_filetypes,
+        })
+      end)
 
       local function confirm_completion_with_tab()
         tab_confirm_token = tab_confirm_token + 1
@@ -106,7 +111,9 @@ return {
         if tab_confirming_completion then
           tab_confirm_token = tab_confirm_token + 1
           tab_confirming_completion = false
-          cmp_confirm_done(event)
+          if cmp_confirm_done then
+            cmp_confirm_done(event)
+          end
         end
       end)
 
