@@ -103,14 +103,23 @@ return {
                     return
                 end
 
-                if not has_c_compiler() then
+                local ok, install_module = pcall(require, "nvim-treesitter.install")
+                if not ok then
                     return
                 end
 
-                local ok, install_module = pcall(require, "nvim-treesitter.install")
-                if ok then
-                    install_module.install(missing)
+                if not has_c_compiler() then
+                    vim.notify(
+                        "No C compiler found. Treesitter parsers cannot be compiled. "
+                        .. "Install MSVC (cl.exe) or GCC to auto-install, "
+                        .. "or run :TSInstall {lang} manually if pre-built binaries are available.",
+                        vim.log.levels.WARN,
+                        { title = "nvim-treesitter" }
+                    )
+                    return
                 end
+
+                install_module.install(missing)
             end
 
             vim.schedule(ensure_missing_parsers)
