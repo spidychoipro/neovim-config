@@ -48,7 +48,18 @@ return {
             end
 
             local function get_available_parser_dirs()
-                local dirs = { vim.fs.joinpath(vim.fn.stdpath("data"), "parser") }
+                local dirs = {}
+
+                -- nvim-treesitter installs parsers to the first user runtime dir
+                local data_dir = vim.fn.stdpath("data")
+                for _, p in ipairs(vim.api.nvim_list_runtime_paths()) do
+                    if vim.startswith(p, data_dir) then
+                        table.insert(dirs, vim.fs.joinpath(p, "parser"))
+                        break
+                    end
+                end
+
+                table.insert(dirs, vim.fs.joinpath(data_dir, "parser"))
 
                 local prog = vim.v.progpath
                 if prog then
@@ -63,8 +74,12 @@ return {
                 local installed = {}
                 for _, dir in ipairs(get_available_parser_dirs()) do
                     if vim.fn.isdirectory(dir) == 1 then
-                        for _, dll in ipairs(vim.fn.glob(vim.fs.joinpath(dir, "*.dll"), false, true)) do
-                            local name = vim.fn.fnamemodify(dll, ":t:r")
+                        for _, file in ipairs(vim.fn.glob(vim.fs.joinpath(dir, "*.so"), false, true)) do
+                            local name = vim.fn.fnamemodify(file, ":t:r")
+                            installed[name] = true
+                        end
+                        for _, file in ipairs(vim.fn.glob(vim.fs.joinpath(dir, "*.dll"), false, true)) do
+                            local name = vim.fn.fnamemodify(file, ":t:r")
                             installed[name] = true
                         end
                     end
