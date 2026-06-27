@@ -82,6 +82,9 @@ return {
                 if vim.fn.executable("cc") == 1 then
                     return true
                 end
+                if vim.fn.executable("clang") == 1 then
+                    return true
+                end
                 return false
             end
 
@@ -111,7 +114,7 @@ return {
                 if not has_c_compiler() then
                     vim.notify(
                         "No C compiler found. Treesitter parsers cannot be compiled. "
-                        .. "Install MSVC (cl.exe) or GCC to auto-install, "
+                        .. "Install MSVC (cl.exe), GCC, or LLVM/clang to auto-install, "
                         .. "or run :TSInstall {lang} manually if pre-built binaries are available.",
                         vim.log.levels.WARN,
                         { title = "nvim-treesitter" }
