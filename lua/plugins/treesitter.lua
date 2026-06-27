@@ -72,22 +72,6 @@ return {
                 return installed
             end
 
-            local function has_c_compiler()
-                if vim.fn.executable("cl.exe") == 1 then
-                    return true
-                end
-                if vim.fn.executable("gcc") == 1 then
-                    return true
-                end
-                if vim.fn.executable("cc") == 1 then
-                    return true
-                end
-                if vim.fn.executable("clang") == 1 then
-                    return true
-                end
-                return false
-            end
-
             local function ensure_missing_parsers()
                 if vim.env.NVIM_SKIP_TS_AUTO_INSTALL == "1" or is_plugin_manager_command() then
                     return
@@ -111,33 +95,85 @@ return {
                     return
                 end
 
-                if not has_c_compiler() then
-                    vim.notify(
-                        "No C compiler found. Treesitter parsers cannot be compiled. "
-                        .. "Install MSVC (cl.exe), GCC, or LLVM/clang to auto-install, "
-                        .. "or run :TSInstall {lang} manually if pre-built binaries are available.",
-                        vim.log.levels.WARN,
-                        { title = "nvim-treesitter" }
-                    )
-                    return
+                -- Find MSVC compiler and set up environment if not already in PATH
+                local function find_msvc()
+                    local vs_root = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools"
+                    if vim.fn.isdirectory(vs_root) ~= 1 then
+                        return false
+                    end
+
+                    -- Find the MSVC version directory
+                    local msvc_base = vim.fs.joinpath(vs_root, "VC", "Tools", "MSVC")
+                    local msvc_versions = vim.fn.readdir(msvc_base)
+                    if #msvc_versions == 0 then
+                        return false
+                    end
+
+                    -- Sort descending (newest first) and pick the latest
+                    table.sort(msvc_versions, function(a, b) return a > b end)
+                    local msvc_ver = msvc_versions[1]
+
+                    local bin_x64 = vim.fs.joinpath(msvc_base, msvc_ver, "bin", "Hostx64", "x64")
+                    if vim.fn.isdirectory(bin_x64) ~= 1 then
+                        return false
+                    end
+
+                    -- cl.exe already in PATH? nothing to do
+                    if vim.fn.executable("cl.exe") == 1 then
+                        return true
+                    end
+
+                    -- Find Windows SDK
+                    local sdk_root = "C:\\Program Files (x86)\\Windows Kits\\10"
+                    local sdk_ver = ""
+                    if vim.fn.isdirectory(sdk_root) == 1 then
+                        local lib_dir = vim.fs.joinpath(sdk_root, "Lib")
+                        if vim.fn.isdirectory(lib_dir) == 1 then
+                            local versions = vim.fn.readdir(lib_dir)
+                            table.sort(versions, function(a, b) return a > b end)
+                            sdk_ver = versions[1] or ""
+                        end
+                    end
+
+                    -- Build environment paths
+                    local msvc_lib = vim.fs.joinpath(msvc_base, msvc_ver, "lib", "x64")
+                    local msvc_inc = vim.fs.joinpath(msvc_base, msvc_ver, "include")
+                    local sdk_ucrt_lib = vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64")
+                    local sdk_um_lib = vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "um", "x64")
+                    local sdk_inc_ucrt = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "ucrt")
+                    local sdk_inc_um = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "um")
+                    local sdk_inc_shared = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "shared")
+
+                    -- Add to environment
+                    vim.env.PATH = bin_x64 .. ";" .. (vim.env.PATH or "")
+                    vim.env.LIB = table.concat({
+                        msvc_lib,
+                        vim.fn.isdirectory(sdk_ucrt_lib) == 1 and sdk_ucrt_lib or nil,
+                        vim.fn.isdirectory(sdk_um_lib) == 1 and sdk_um_lib or nil,
+                    }, ";")
+                    vim.env.INCLUDE = table.concat({
+                        msvc_inc,
+                        vim.fn.isdirectory(sdk_inc_ucrt) == 1 and sdk_inc_ucrt or nil,
+                        vim.fn.isdirectory(sdk_inc_um) == 1 and sdk_inc_um or nil,
+                        vim.fn.isdirectory(sdk_inc_shared) == 1 and sdk_inc_shared or nil,
+                    }, ";")
+
+                    return true
                 end
 
-                local prev_cc = vim.env.CC
-                if vim.fn.executable("cl.exe") ~= 1
-                    and vim.fn.executable("gcc") ~= 1
-                    and vim.fn.executable("cc") ~= 1
-                    and vim.fn.executable("clang") == 1
-                then
-                    vim.env.CC = "clang"
+                if vim.fn.executable("cl.exe") ~= 1 then
+                    if not find_msvc() then
+                        vim.notify(
+                            "No C compiler found (cl.exe). Treesitter parsers cannot be compiled. "
+                            .. "Install Visual Studio Build Tools with 'Desktop development with C++' workload.",
+                            vim.log.levels.WARN,
+                            { title = "nvim-treesitter" }
+                        )
+                        return
+                    end
                 end
 
                 install_module.install(missing)
-
-                if prev_cc == nil then
-                    vim.env.CC = nil
-                else
-                    vim.env.CC = prev_cc
-                end
             end
 
             vim.schedule(ensure_missing_parsers)
