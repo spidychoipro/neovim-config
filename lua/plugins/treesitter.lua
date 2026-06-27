@@ -122,7 +122,22 @@ return {
                     return
                 end
 
+                local prev_cc = vim.env.CC
+                if vim.fn.executable("cl.exe") ~= 1
+                    and vim.fn.executable("gcc") ~= 1
+                    and vim.fn.executable("cc") ~= 1
+                    and vim.fn.executable("clang") == 1
+                then
+                    vim.env.CC = "clang"
+                end
+
                 install_module.install(missing)
+
+                if prev_cc == nil then
+                    vim.env.CC = nil
+                else
+                    vim.env.CC = prev_cc
+                end
             end
 
             vim.schedule(ensure_missing_parsers)
