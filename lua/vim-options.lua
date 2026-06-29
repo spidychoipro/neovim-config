@@ -99,7 +99,7 @@ vim.api.nvim_create_autocmd("BufReadPre", {
   callback = function(args)
     local size = vim.fn.getfsize(vim.api.nvim_buf_get_name(args.buf))
     if size > 1024 * 512 then
-      vim.bo[args.buf].syntax = false
+      vim.bo[args.buf].syntax = ""
       vim.b[args.buf].large_file = true
       vim.bo[args.buf].undofile = false
     end
