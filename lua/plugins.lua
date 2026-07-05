@@ -1,5 +1,5 @@
 local function get_hanvim_path()
-  local dev_path = "C:/Users/swpar/plugin/hanvim.nvim"
+  local dev_path = vim.fn.expand("~/plugin/hanvim.nvim")
   if vim.fn.isdirectory(dev_path) == 1 then
     return dev_path
   end
