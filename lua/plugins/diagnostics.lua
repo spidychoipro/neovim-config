@@ -92,9 +92,6 @@ return {
                     },
                     severity = {
                         severity.ERROR,
-                        severity.WARN,
-                        severity.INFO,
-                        severity.HINT,
                     },
                     overwrite_events = {
                         "LspAttach",
