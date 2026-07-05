@@ -24,9 +24,20 @@ function M.find_bash()
   end
 
   if M.is_windows then
-    local git_bash = "C:\\Program Files\\Git\\bin\\bash.exe"
-    if vim.fn.filereadable(git_bash) == 1 then
-      return git_bash
+    local exe = vim.fn.exepath("bash")
+    if exe ~= "" then
+      return exe
+    end
+
+    local candidates = {
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
+      vim.fn.expand("~\\scoop\\apps\\git\\current\\bin\\bash.exe"),
+    }
+    for _, candidate in ipairs(candidates) do
+      if vim.fn.filereadable(candidate) == 1 then
+        return candidate
+      end
     end
   end
 end
