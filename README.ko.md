@@ -39,19 +39,36 @@
 
 ![Telescope file search](assets/telescope.png)
 
+## 요구 사항
+
+| 도구 | 용도 | 설치 |
+| --- | --- | --- |
+| Neovim | 편집기 | `winget install Neovim.Neovim` |
+| Git | 플러그인 설치, bash/grep 도구 | `winget install Git.Git` |
+| PowerShell 7 | 외부 실행기, 플러그인 지원 | `winget install Microsoft.PowerShell` |
+| Windows Terminal | 외부 실행기 터미널 | `winget install Microsoft.WindowsTerminal` |
+| ripgrep | Telescope `live_grep` 검색 | `winget install BurntSushi.ripgrep.MSVC` |
+| `fd` | Telescope `find_files` 가속 | `winget install sharkdp.fd` |
+| LLVM / `clangd` | C/C++ LSP, 컴파일, 포맷 | `winget install LLVM.LLVM` |
+| `make` | Tree-sitter 파서 컴파일 | `winget install ezwinports.make` |
+| Zig | Zig LSP 및 빌드 지원 | `winget install zig.zig` |
+| 7-Zip | 파일 압축 지원 | `winget install 7zip.7zip` |
+| Node.js / npm | LSP 서버 런타임 | [nodejs.org](https://nodejs.org/) |
+| Python | Python LSP, formatter, debugger | [python.org](https://www.python.org/) |
+
+한 방에 설치 (관리자 PowerShell):
+
+```powershell
+winget install Git.Git Microsoft.PowerShell Microsoft.WindowsTerminal ^
+  BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM ^
+  7zip.7zip zig.zig
+```
+
+Node.js와 Python은 위 공식 사이트에서 설치하는 것을 권장합니다.
+
 ## 빠른 설치
 
 ### Windows
-
-필수 앱 설치 (관리자 PowerShell) — 네오빔은 별도 설치:
-
-```powershell
-winget install Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
-winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
-winget install Microsoft.WindowsTerminal 7zip.7zip
-```
-
-클론 및 실행:
 
 ```powershell
 Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
@@ -68,23 +85,6 @@ nvim
 ```
 
 첫 실행 시 `lazy.nvim`이 자동으로 bootstrap됩니다. 자세한 내용은 [docs/installation.md](./docs/installation.md)를 참고하세요.
-
-## 요구 사항
-
-| 도구 | 설명 | 설치 |
-| --- | --- | --- |
-| Neovim | `v0.12.2`에서 확인 | `winget install Neovim.Neovim` |
-| Git | 플러그인 설치, bash/grep 도구 | `winget install Git.Git` |
-| PowerShell 7 (`pwsh`) | 외부 실행기, 플러그인 지원 | `winget install Microsoft.PowerShell` |
-| Node.js / npm | LSP 서버 런타임 | [nodejs.org](https://nodejs.org/) |
-| Python | Python LSP, formatter, debugger | [python.org](https://www.python.org/) |
-| Zig | Zig LSP 및 빌드 지원 | [ziglang.org](https://ziglang.org/download/) 또는 `winget install zig.zig` |
-| Windows Terminal (`wt.exe`) | 외부 실행기 터미널 | `winget install Microsoft.WindowsTerminal` |
-| ripgrep | Telescope `live_grep` 검색 | `winget install BurntSushi.ripgrep.MSVC` |
-| `fd` | Telescope `find_files` 가속 | `winget install sharkdp.fd` |
-| LLVM / `clangd` | C/C++ LSP, 컴파일, 포맷 | `winget install LLVM.LLVM` |
-| `make` | Tree-sitter 파서 컴파일 | `winget install ezwinports.make` |
-| 7-Zip | 파일 압축 지원 | `winget install 7zip.7zip` |
 
 ## 자주 쓰는 단축키
 

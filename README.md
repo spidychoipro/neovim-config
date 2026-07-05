@@ -39,19 +39,38 @@ This setup treats Neovim as the editing control center while keeping program exe
 
 ![Telescope file search](assets/telescope.png)
 
+## Requirements
+
+| Tool | Purpose | Install |
+| --- | --- | --- |
+| Neovim | Editor | `winget install Neovim.Neovim` |
+| Git | Plugin installs, bash/grep toolchain | `winget install Git.Git` |
+| PowerShell 7 | External runner, plugin support | `winget install Microsoft.PowerShell` |
+| Windows Terminal | External runner terminal | `winget install Microsoft.WindowsTerminal` |
+| ripgrep | Telescope `live_grep` | `winget install BurntSushi.ripgrep.MSVC` |
+| `fd` | Faster Telescope `find_files` | `winget install sharkdp.fd` |
+| LLVM / `clangd` | C/C++ LSP, compilation, formatting | `winget install LLVM.LLVM` |
+| `make` | Tree-sitter parser compilation | `winget install ezwinports.make` |
+| Zig | Zig LSP and build support | `winget install zig.zig` |
+| 7-Zip | File archiving support | `winget install 7zip.7zip` |
+| Node.js / npm | LSP server runtime | [nodejs.org](https://nodejs.org/) |
+| Python | Python LSP, formatters, debugger | [python.org](https://www.python.org/) |
+
+One-shot install (run PowerShell as admin):
+
+```powershell
+winget install Git.Git Microsoft.PowerShell Microsoft.WindowsTerminal ^
+  BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM ^
+  7zip.7zip zig.zig
+```
+
+Node.js and Python are best installed from the official websites linked above.
+
+Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, `bash-language-server`, `powershell-editor-services`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, and `shfmt`.
+
 ## Quick Start
 
 ### Windows
-
-Install prerequisites (run as admin) — Neovim is installed separately:
-
-```powershell
-winget install Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
-winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
-winget install Microsoft.WindowsTerminal 7zip.7zip
-```
-
-Then clone and launch:
 
 ```powershell
 Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
@@ -70,25 +89,6 @@ nvim
 Lazy.nvim will bootstrap itself on first launch. Mason-managed tools are installed from inside Neovim.
 
 See the full guide: [docs/installation.md](./docs/installation.md).
-
-## Requirements
-
-| Requirement | Notes | Install (Windows) |
-| --- | --- | --- |
-| Neovim | Tested with `v0.12.2` | `winget install Neovim.Neovim` |
-| Git | Plugin installs, bash tools (grep/sed) | `winget install Git.Git` |
-| PowerShell 7 (`pwsh`) | External runner and plugin support | `winget install Microsoft.PowerShell` |
-| Node.js / npm | LSP server runtime (basedpyright, bash-language-server, etc.) | [nodejs.org](https://nodejs.org/) |
-| Python | Python LSP, formatters, debugger | [python.org](https://www.python.org/) |
-| Zig | Zig LSP and build support | [ziglang.org](https://ziglang.org/download/) or `winget install zig.zig` |
-| Windows Terminal (`wt.exe`) | External runner terminal | `winget install Microsoft.WindowsTerminal` |
-| ripgrep | Telescope `live_grep` search | `winget install BurntSushi.ripgrep.MSVC` |
-| `fd` | Faster Telescope `find_files` | `winget install sharkdp.fd` |
-| LLVM / `clangd` | C/C++ LSP, compilation, formatting | `winget install LLVM.LLVM` |
-| `make` | Tree-sitter parser compilation | `winget install ezwinports.make` |
-| 7-Zip | File archiving support | `winget install 7zip.7zip` |
-
-Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, `bash-language-server`, `powershell-editor-services`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, and `shfmt`.
 
 ## Everyday Commands
 

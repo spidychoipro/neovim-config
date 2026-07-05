@@ -6,24 +6,22 @@ This guide is written for both first-time Neovim users and people who already ke
 
 Install these system tools first:
 
-| Tool | Why it matters |
-| --- | --- |
-| Neovim `0.12+` | Required for the current LSP, diagnostic, and Tree-sitter APIs |
-| Git | Used by lazy.nvim to install plugins |
-| Node.js and npm | Required by several language servers |
-| Python | Required by Python tooling and debug support |
-| PowerShell 7 (`pwsh`) | Recommended on Windows |
-| clang / clang++ | Used by C and C++ workflows |
-| bash or sh | Used by shell script workflows |
+| Tool | Why it matters | Install |
+| --- | --- | --- |
+| Neovim `0.12+` | Required for the current LSP, diagnostic, and Tree-sitter APIs | `winget install Neovim.Neovim` |
+| Git | Used by lazy.nvim to install plugins | `winget install Git.Git` |
+| PowerShell 7 (`pwsh`) | Recommended on Windows | `winget install Microsoft.PowerShell` |
+| Windows Terminal (`wt.exe`) | External runner terminal | `winget install Microsoft.WindowsTerminal` |
+| ripgrep | Telescope `live_grep` | `winget install BurntSushi.ripgrep.MSVC` |
+| LLVM / `clangd` | Used by C and C++ workflows | `winget install LLVM.LLVM` |
+| Node.js and npm | Required by several language servers | [nodejs.org](https://nodejs.org/) |
+| Python | Required by Python tooling and debug support | [python.org](https://www.python.org/) |
 
-## Windows
-
-Install prerequisites (run PowerShell as admin):
+One-shot install (run PowerShell as admin):
 
 ```powershell
-winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
-winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
-winget install Microsoft.WindowsTerminal 7zip.7zip
+winget install Git.Git Microsoft.PowerShell Microsoft.WindowsTerminal ^
+  BurntSushi.ripgrep.MSVC LLVM.LLVM
 ```
 
 Back up any existing config:
