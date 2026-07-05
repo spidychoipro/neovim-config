@@ -45,14 +45,6 @@ require("lazy").setup("plugins", {
   },
 })
 
-vim.api.nvim_create_autocmd("VimEnter", {
-  group = vim.api.nvim_create_augroup("LazyAutoUpdate", { clear = true }),
-  once = true,
-  callback = function()
-    vim.schedule(function()
-      require("lazy").update()
-    end)
-  end,
-})
+vim.keymap.set("n", "<leader>lu", "<Cmd>Lazy update<CR>", { desc = "Lazy update plugins" })
 local_config.load("user.after")
 require("lsp-init")
