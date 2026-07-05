@@ -43,10 +43,10 @@ This setup treats Neovim as the editing control center while keeping program exe
 
 ### Windows
 
-Install prerequisites (run as admin):
+Install prerequisites (run as admin) — Neovim is installed separately:
 
 ```powershell
-winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
+winget install Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
 winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
 winget install Microsoft.WindowsTerminal 7zip.7zip
 ```
@@ -73,16 +73,19 @@ See the full guide: [docs/installation.md](./docs/installation.md).
 
 ## Requirements
 
-| Requirement | Notes |
-| --- | --- |
-| Neovim | Tested with `v0.12.2` |
-| Git | Required for lazy.nvim and plugin installs |
-| Node.js + npm | Required by several LSP/tooling packages |
-| Python | Required for Python tooling and debug support |
-| PowerShell 7 (`pwsh`) | Recommended on Windows |
-| Windows Terminal (`wt.exe`) | Used by the external runner on Windows |
-| `clang` / `clang++` | Used for C and C++ builds/runs |
-| `bash` or `sh` | Used for shell scripts |
+| Requirement | Notes | Install (Windows) |
+| --- | --- | --- |
+| Neovim | Tested with `v0.12.2` | `winget install Neovim.Neovim` |
+| Git | Plugin installs, bash tools (grep/sed) | `winget install Git.Git` |
+| PowerShell 7 (`pwsh`) | External runner and plugin support | `winget install Microsoft.PowerShell` |
+| Node.js / npm | LSP server runtime (basedpyright, bash-language-server, etc.) | `winget install OpenJS.NodeJS` |
+| Python | Python LSP, formatters, debugger | `winget install Python.Python.3.12` |
+| Windows Terminal (`wt.exe`) | External runner terminal | `winget install Microsoft.WindowsTerminal` |
+| ripgrep | Telescope `live_grep` search | `winget install BurntSushi.ripgrep.MSVC` |
+| `fd` | Faster Telescope `find_files` | `winget install sharkdp.fd` |
+| LLVM / `clangd` | C/C++ LSP, compilation, formatting | `winget install LLVM.LLVM` |
+| `make` | Tree-sitter parser compilation | `winget install ezwinports.make` |
+| 7-Zip | File archiving support | `winget install 7zip.7zip` |
 
 Mason installs editor-side tools such as `lua-language-server`, `basedpyright`, `bash-language-server`, `powershell-editor-services`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, and `shfmt`.
 

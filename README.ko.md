@@ -43,10 +43,10 @@
 
 ### Windows
 
-필수 앱 설치 (관리자 PowerShell):
+필수 앱 설치 (관리자 PowerShell) — 네오빔은 별도 설치:
 
 ```powershell
-winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
+winget install Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
 winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
 winget install Microsoft.WindowsTerminal 7zip.7zip
 ```
@@ -71,16 +71,19 @@ nvim
 
 ## 요구 사항
 
-| 도구 | 설명 |
-| --- | --- |
-| Neovim | `v0.12.2`에서 확인 |
-| Git | 플러그인 설치에 필요 |
-| Node.js / npm | 여러 LSP 도구에 필요 |
-| Python | Python LSP, DAP, 실행기에 필요 |
-| PowerShell 7 (`pwsh`) | Windows에서 권장 |
-| Windows Terminal (`wt.exe`) | Windows 외부 실행기에 사용 |
-| `clang` / `clang++` | C/C++ 빌드 및 실행 |
-| `bash` 또는 `sh` | Shell script 실행 |
+| 도구 | 설명 | 설치 명령어 |
+| --- | --- | --- |
+| Neovim | `v0.12.2`에서 확인 | `winget install Neovim.Neovim` |
+| Git | 플러그인 설치, bash/grep 도구 | `winget install Git.Git` |
+| PowerShell 7 (`pwsh`) | 외부 실행기, 플러그인 지원 | `winget install Microsoft.PowerShell` |
+| Node.js / npm | LSP 서버 런타임 | `winget install OpenJS.NodeJS` |
+| Python | Python LSP, formatter, debugger | `winget install Python.Python.3.12` |
+| Windows Terminal (`wt.exe`) | 외부 실행기 터미널 | `winget install Microsoft.WindowsTerminal` |
+| ripgrep | Telescope `live_grep` 검색 | `winget install BurntSushi.ripgrep.MSVC` |
+| `fd` | Telescope `find_files` 가속 | `winget install sharkdp.fd` |
+| LLVM / `clangd` | C/C++ LSP, 컴파일, 포맷 | `winget install LLVM.LLVM` |
+| `make` | Tree-sitter 파서 컴파일 | `winget install ezwinports.make` |
+| 7-Zip | 파일 압축 지원 | `winget install 7zip.7zip` |
 
 ## 자주 쓰는 단축키
 
