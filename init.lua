@@ -46,5 +46,12 @@ require("lazy").setup("plugins", {
 })
 
 vim.keymap.set("n", "<leader>lu", "<Cmd>Lazy update<CR>", { desc = "Lazy update plugins" })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "lazy",
+  callback = function()
+    vim.keymap.set("n", "<Esc>", "<Cmd>q<CR>", { buffer = true, nowait = true })
+  end,
+})
 local_config.load("user.after")
 require("lsp-init")
