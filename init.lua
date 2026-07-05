@@ -28,11 +28,6 @@ require("lazy").setup("plugins", {
     enabled = false,
     hererocks = false,
   },
-  checker = {
-    enabled = true,
-    frequency = 86400,
-    notify = true,
-  },
   performance = {
     cache = {
       enabled = true,
