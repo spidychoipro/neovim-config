@@ -164,7 +164,7 @@ vim.lsp.config("basedpyright", {
       "requirements.txt"
     })
 
-    if project_root then
+    if project_root and not is_expensive_python_root(project_root) then
       on_dir(project_root)
       return
     end
