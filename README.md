@@ -78,8 +78,9 @@ See the full guide: [docs/installation.md](./docs/installation.md).
 | Neovim | Tested with `v0.12.2` | `winget install Neovim.Neovim` |
 | Git | Plugin installs, bash tools (grep/sed) | `winget install Git.Git` |
 | PowerShell 7 (`pwsh`) | External runner and plugin support | `winget install Microsoft.PowerShell` |
-| Node.js / npm | LSP server runtime (basedpyright, bash-language-server, etc.) | `winget install OpenJS.NodeJS` |
-| Python | Python LSP, formatters, debugger | `winget install Python.Python.3.12` |
+| Node.js / npm | LSP server runtime (basedpyright, bash-language-server, etc.) | [nodejs.org](https://nodejs.org/) |
+| Python | Python LSP, formatters, debugger | [python.org](https://www.python.org/) |
+| Zig | Zig LSP and build support | [ziglang.org](https://ziglang.org/download/) or `winget install zig.zig` |
 | Windows Terminal (`wt.exe`) | External runner terminal | `winget install Microsoft.WindowsTerminal` |
 | ripgrep | Telescope `live_grep` search | `winget install BurntSushi.ripgrep.MSVC` |
 | `fd` | Faster Telescope `find_files` | `winget install sharkdp.fd` |

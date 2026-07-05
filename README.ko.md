@@ -71,13 +71,14 @@ nvim
 
 ## 요구 사항
 
-| 도구 | 설명 | 설치 명령어 |
+| 도구 | 설명 | 설치 |
 | --- | --- | --- |
 | Neovim | `v0.12.2`에서 확인 | `winget install Neovim.Neovim` |
 | Git | 플러그인 설치, bash/grep 도구 | `winget install Git.Git` |
 | PowerShell 7 (`pwsh`) | 외부 실행기, 플러그인 지원 | `winget install Microsoft.PowerShell` |
-| Node.js / npm | LSP 서버 런타임 | `winget install OpenJS.NodeJS` |
-| Python | Python LSP, formatter, debugger | `winget install Python.Python.3.12` |
+| Node.js / npm | LSP 서버 런타임 | [nodejs.org](https://nodejs.org/) |
+| Python | Python LSP, formatter, debugger | [python.org](https://www.python.org/) |
+| Zig | Zig LSP 및 빌드 지원 | [ziglang.org](https://ziglang.org/download/) 또는 `winget install zig.zig` |
 | Windows Terminal (`wt.exe`) | 외부 실행기 터미널 | `winget install Microsoft.WindowsTerminal` |
 | ripgrep | Telescope `live_grep` 검색 | `winget install BurntSushi.ripgrep.MSVC` |
 | `fd` | Telescope `find_files` 가속 | `winget install sharkdp.fd` |
