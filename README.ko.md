@@ -43,6 +43,16 @@
 
 ### Windows
 
+필수 앱 설치 (관리자 PowerShell):
+
+```powershell
+winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
+winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
+winget install Microsoft.WindowsTerminal 7zip.7zip
+```
+
+클론 및 실행:
+
 ```powershell
 Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
 git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"

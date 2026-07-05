@@ -18,6 +18,14 @@ Install these system tools first:
 
 ## Windows
 
+Install prerequisites (run PowerShell as admin):
+
+```powershell
+winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
+winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
+winget install Microsoft.WindowsTerminal 7zip.7zip
+```
+
 Back up any existing config:
 
 ```powershell

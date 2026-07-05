@@ -43,6 +43,16 @@ This setup treats Neovim as the editing control center while keeping program exe
 
 ### Windows
 
+Install prerequisites (run as admin):
+
+```powershell
+winget install Neovim.Neovim Git.Git Microsoft.PowerShell OpenJS.NodeJS Python.Python.3.12
+winget install BurntSushi.ripgrep.MSVC sharkdp.fd ezwinports.make LLVM.LLVM
+winget install Microsoft.WindowsTerminal 7zip.7zip
+```
+
+Then clone and launch:
+
 ```powershell
 Rename-Item "$env:LOCALAPPDATA\nvim" "$env:LOCALAPPDATA\nvim.backup" -ErrorAction SilentlyContinue
 git clone https://github.com/spidychoipro/neovim-config "$env:LOCALAPPDATA\nvim"
