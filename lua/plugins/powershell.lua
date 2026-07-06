@@ -77,7 +77,7 @@ return {
                 end
             end
 
-            vim.fn.delete(session_file)
+            pcall(vim.fn.delete, session_file)
 
             require("powershell").setup({
                 bundle_path = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "powershell-editor-services"),
@@ -87,7 +87,9 @@ return {
                 on_attach = disable_semantic_tokens,
             })
 
-            disable_semantic_token_capability(require("powershell.config").config.capabilities)
+            pcall(function()
+                disable_semantic_token_capability(require("powershell.config").config.capabilities)
+            end)
 
             vim.api.nvim_create_autocmd("User", {
                 group = group,
