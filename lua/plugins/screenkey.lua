@@ -35,32 +35,33 @@ return {
             end,
         },
         config = function(_, opts)
-            local Util = require("screenkey.util")
-            local orig_validate = Util.validate
-            Util.validate = function(spec, user_config, path)
-                local keys = vim.tbl_keys(spec)
-                table.sort(keys)
+            pcall(function()
+                local Util = require("screenkey.util")
+                Util.validate = function(spec, user_config, path)
+                    local keys = vim.tbl_keys(spec)
+                    table.sort(keys)
 
-                for _, key in ipairs(keys) do
-                    local s = spec[key]
-                    local ok, err = pcall(vim.validate, key, s[1], s[2], s[3])
-                    if not ok then
-                        return false, string.format("%s: %s", path, err)
+                    for _, key in ipairs(keys) do
+                        local s = spec[key]
+                        local ok, err = pcall(vim.validate, key, s[1], s[2], s[3])
+                        if not ok then
+                            return false, string.format("%s: %s", path, err)
+                        end
                     end
-                end
 
-                local errors = {}
-                for k, _ in pairs(user_config) do
-                    if not spec[k] then
-                        table.insert(errors, ("'%s' is not a valid key of %s"):format(k, path))
+                    local errors = {}
+                    for k, _ in pairs(user_config) do
+                        if not spec[k] then
+                            table.insert(errors, ("'%s' is not a valid key of %s"):format(k, path))
+                        end
                     end
-                end
 
-                if #errors == 0 then
-                    return true, nil
+                    if #errors == 0 then
+                        return true, nil
+                    end
+                    return false, table.concat(errors, "\n")
                 end
-                return false, table.concat(errors, "\n")
-            end
+            end)
 
             local screenkey = require("screenkey")
             screenkey.setup(opts)

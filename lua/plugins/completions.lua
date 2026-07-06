@@ -74,11 +74,20 @@ return {
       local cmp_confirm_done
 
       vim.schedule(function()
-        local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
-        local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
+        local ok, cmp_autopairs = pcall(require, 'nvim-autopairs.completion.cmp')
+        if not ok then
+          return
+        end
 
-        cmp_autopairs_filetypes['*']['('].handler = add_call_parentheses
-        if cmp_autopairs_filetypes.python then
+        local cmp_autopairs_filetypes = vim.deepcopy(cmp_autopairs.filetypes)
+        if not cmp_autopairs_filetypes or not cmp_autopairs_filetypes['*'] then
+          return
+        end
+
+        if cmp_autopairs_filetypes['*']['('] then
+          cmp_autopairs_filetypes['*']['('].handler = add_call_parentheses
+        end
+        if cmp_autopairs_filetypes.python and cmp_autopairs_filetypes.python['('] then
           cmp_autopairs_filetypes.python['('].handler = add_call_parentheses
         end
 
