@@ -21,3 +21,11 @@
 ## Scope
 
 Check all `.lua` files under `lua/`, `init.lua`, and any other configuration files in the repository.
+
+## Post-Change Verification
+
+After any modification to Neovim configuration:
+
+1. **Run `:checkhealth`** in Neovim to verify the config loads without errors.
+2. **Fix immediately** any problems reported by checkhealth — warnings and errors are both treated as bugs to resolve before considering the change complete.
+3. If checkhealth itself fails to load, investigate and fix the loading error first.
