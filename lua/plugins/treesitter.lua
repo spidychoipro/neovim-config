@@ -200,12 +200,10 @@ return {
 
                     if vim.fn.executable("cl.exe") ~= 1 and not find_msvc() then
                         vim.notify(
-                            "No C compiler found (cl.exe). Treesitter parsers cannot be compiled. "
-                            .. "Install Visual Studio Build Tools with 'Desktop development with C++' workload.",
-                            vim.log.levels.WARN,
+                            "MSVC not found. Treesitter will use system compiler (gcc/clang) if available.",
+                            vim.log.levels.INFO,
                             { title = "nvim-treesitter" }
                         )
-                        return
                     end
                 end
 
