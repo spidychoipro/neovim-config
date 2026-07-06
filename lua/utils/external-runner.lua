@@ -4,7 +4,7 @@ local runner = require("utils.runner")
 local script_dir = vim.fs.joinpath(vim.fn.stdpath("data"), "external-runner")
 
 vim.fn.mkdir(script_dir, "p")
-for _, f in ipairs(vim.fn.readdir(script_dir) or {}) do
+for f, _ in vim.fs.dir(script_dir) do
   local full = vim.fs.joinpath(script_dir, f)
   local age = vim.uv.now() - ((vim.uv.fs_stat(full) or {}).mtime or {}).sec * 1000 or 0
   if age > 86400000 then

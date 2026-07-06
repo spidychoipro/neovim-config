@@ -4,7 +4,10 @@ local function cleanup_stale_single_file_workspaces()
     return
   end
 
-  local entries = vim.fn.readdir(base)
+  local entries = {}
+  for name, _ in vim.fs.dir(base) do
+    table.insert(entries, name)
+  end
   local now = vim.uv.now()
   local max_age = 7 * 24 * 60 * 60 * 1000
   local max_entries = 200
@@ -23,7 +26,7 @@ local function cleanup_stale_single_file_workspaces()
     end
   end
 
-  for _, name in ipairs(vim.fn.readdir(base)) do
+  for name, _ in vim.fs.dir(base) do
     local full = vim.fs.joinpath(base, name)
     local stat = vim.uv.fs_stat(full)
     if stat and stat.type == "directory" then

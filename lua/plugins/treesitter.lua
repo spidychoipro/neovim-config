@@ -118,7 +118,10 @@ return {
                             return false
                         end
 
-                        local msvc_versions = vim.fn.readdir(msvc_base)
+                        local msvc_versions = {}
+                        for name, _ in vim.fs.dir(msvc_base) do
+                          table.insert(msvc_versions, name)
+                        end
                         if #msvc_versions == 0 then
                             return false
                         end
@@ -140,7 +143,10 @@ return {
                         if vim.fn.isdirectory(sdk_root) == 1 then
                             local lib_dir = vim.fs.joinpath(sdk_root, "Lib")
                             if vim.fn.isdirectory(lib_dir) == 1 then
-                                local versions = vim.fn.readdir(lib_dir)
+                                local versions = {}
+                                for name, _ in vim.fs.dir(lib_dir) do
+                                  table.insert(versions, name)
+                                end
                                 table.sort(versions, function(a, b) return a > b end)
                                 sdk_ver = versions[1] or ""
                             end
