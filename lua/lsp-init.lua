@@ -184,6 +184,7 @@ vim.lsp.config("basedpyright", {
         autoSearchPaths = false,
         fileEnumerationTimeout = 1,
         exclude = python_analysis_exclude,
+        typeCheckingMode = "basic",
         diagnosticSeverityOverrides = {
           reportGeneralTypeIssues = "none",
           reportOptionalMemberAccess = "information",

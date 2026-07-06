@@ -18,14 +18,14 @@ return {
     },
     config = function()
       local telescope = require("telescope")
-      local trouble = require("trouble.sources.telescope")
+      local trouble_ok, trouble = pcall(require, "trouble.sources.telescope")
 
       telescope.setup({
         defaults = {
-          mappings = {
+          mappings = trouble_ok and {
             i = { ["<c-t>"] = trouble.open },
             n = { ["<c-t>"] = trouble.open },
-          },
+          } or {},
         },
         extensions = {
           ["ui-select"] = {

@@ -7,6 +7,7 @@ return {
 
         config = function()
             local treesitter = require("nvim-treesitter")
+            local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
             local parsers = {
                 "bash",
                 "c",
@@ -110,74 +111,94 @@ return {
                     return
                 end
 
-                -- Find MSVC compiler and set up environment if not already in PATH
-                local function find_msvc()
-                    local vs_root = "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools"
-                    if vim.fn.isdirectory(vs_root) ~= 1 then
-                        return false
-                    end
+                if is_windows then
+                    local function setup_msvc_env(vs_root)
+                        local msvc_base = vim.fs.joinpath(vs_root, "VC", "Tools", "MSVC")
+                        if vim.fn.isdirectory(msvc_base) ~= 1 then
+                            return false
+                        end
 
-                    -- Find the MSVC version directory
-                    local msvc_base = vim.fs.joinpath(vs_root, "VC", "Tools", "MSVC")
-                    local msvc_versions = vim.fn.readdir(msvc_base)
-                    if #msvc_versions == 0 then
-                        return false
-                    end
+                        local msvc_versions = vim.fn.readdir(msvc_base)
+                        if #msvc_versions == 0 then
+                            return false
+                        end
 
-                    -- Sort descending (newest first) and pick the latest
-                    table.sort(msvc_versions, function(a, b) return a > b end)
-                    local msvc_ver = msvc_versions[1]
+                        table.sort(msvc_versions, function(a, b) return a > b end)
+                        local msvc_ver = msvc_versions[1]
 
-                    local bin_x64 = vim.fs.joinpath(msvc_base, msvc_ver, "bin", "Hostx64", "x64")
-                    if vim.fn.isdirectory(bin_x64) ~= 1 then
-                        return false
-                    end
+                        local bin_x64 = vim.fs.joinpath(msvc_base, msvc_ver, "bin", "Hostx64", "x64")
+                        if vim.fn.isdirectory(bin_x64) ~= 1 then
+                            return false
+                        end
 
-                    -- cl.exe already in PATH? nothing to do
-                    if vim.fn.executable("cl.exe") == 1 then
+                        if vim.fn.executable("cl.exe") == 1 then
+                            return true
+                        end
+
+                        local sdk_root = "C:\\Program Files (x86)\\Windows Kits\\10"
+                        local sdk_ver = ""
+                        if vim.fn.isdirectory(sdk_root) == 1 then
+                            local lib_dir = vim.fs.joinpath(sdk_root, "Lib")
+                            if vim.fn.isdirectory(lib_dir) == 1 then
+                                local versions = vim.fn.readdir(lib_dir)
+                                table.sort(versions, function(a, b) return a > b end)
+                                sdk_ver = versions[1] or ""
+                            end
+                        end
+
+                        vim.env.PATH = bin_x64 .. ";" .. (vim.env.PATH or "")
+                        vim.env.LIB = table.concat({
+                            vim.fs.joinpath(msvc_base, msvc_ver, "lib", "x64"),
+                            vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64")) == 1 and vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64") or nil,
+                            vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "um", "x64")) == 1 and vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "um", "x64") or nil,
+                        }, ";")
+                        vim.env.INCLUDE = table.concat({
+                            vim.fs.joinpath(msvc_base, msvc_ver, "include"),
+                            vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Include", sdk_ver, "ucrt")) == 1 and vim.fs.joinpath(sdk_root, "Include", sdk_ver, "ucrt") or nil,
+                            vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Include", sdk_ver, "um")) == 1 and vim.fs.joinpath(sdk_root, "Include", sdk_ver, "um") or nil,
+                            vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Include", sdk_ver, "shared")) == 1 and vim.fs.joinpath(sdk_root, "Include", sdk_ver, "shared") or nil,
+                        }, ";")
+
                         return true
                     end
 
-                    -- Find Windows SDK
-                    local sdk_root = "C:\\Program Files (x86)\\Windows Kits\\10"
-                    local sdk_ver = ""
-                    if vim.fn.isdirectory(sdk_root) == 1 then
-                        local lib_dir = vim.fs.joinpath(sdk_root, "Lib")
-                        if vim.fn.isdirectory(lib_dir) == 1 then
-                            local versions = vim.fn.readdir(lib_dir)
-                            table.sort(versions, function(a, b) return a > b end)
-                            sdk_ver = versions[1] or ""
+                    local function find_msvc()
+                        -- vswhere (most reliable)
+                        if vim.fn.executable("vswhere.exe") == 1 then
+                            local output = vim.fn.system({
+                                "vswhere.exe", "-latest", "-products", "*",
+                                "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+                                "-property", "installationPath",
+                            })
+                            local vs_path = vim.fn.trim(output)
+                            if vs_path ~= "" and vim.fn.isdirectory(vs_path) == 1 then
+                                if setup_msvc_env(vs_path) then
+                                    return true
+                                end
+                            end
                         end
+
+                        -- Fallback: common VS installation paths
+                        local vs_candidates = {}
+                        for _, edition in ipairs({ "BuildTools", "Community", "Professional", "Enterprise" }) do
+                            table.insert(vs_candidates, "C:\\Program Files\\Microsoft Visual Studio\\2022\\" .. edition)
+                            table.insert(vs_candidates, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\" .. edition)
+                            table.insert(vs_candidates, "C:\\Program Files\\Microsoft Visual Studio\\2019\\" .. edition)
+                            table.insert(vs_candidates, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\" .. edition)
+                            table.insert(vs_candidates, "C:\\Program Files\\Microsoft Visual Studio\\2017\\" .. edition)
+                            table.insert(vs_candidates, "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\" .. edition)
+                        end
+
+                        for _, path in ipairs(vs_candidates) do
+                            if vim.fn.isdirectory(path) == 1 and setup_msvc_env(path) then
+                                return true
+                            end
+                        end
+
+                        return false
                     end
 
-                    -- Build environment paths
-                    local msvc_lib = vim.fs.joinpath(msvc_base, msvc_ver, "lib", "x64")
-                    local msvc_inc = vim.fs.joinpath(msvc_base, msvc_ver, "include")
-                    local sdk_ucrt_lib = vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64")
-                    local sdk_um_lib = vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "um", "x64")
-                    local sdk_inc_ucrt = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "ucrt")
-                    local sdk_inc_um = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "um")
-                    local sdk_inc_shared = vim.fs.joinpath(sdk_root, "Include", sdk_ver, "shared")
-
-                    -- Add to environment
-                    vim.env.PATH = bin_x64 .. ";" .. (vim.env.PATH or "")
-                    vim.env.LIB = table.concat({
-                        msvc_lib,
-                        vim.fn.isdirectory(sdk_ucrt_lib) == 1 and sdk_ucrt_lib or nil,
-                        vim.fn.isdirectory(sdk_um_lib) == 1 and sdk_um_lib or nil,
-                    }, ";")
-                    vim.env.INCLUDE = table.concat({
-                        msvc_inc,
-                        vim.fn.isdirectory(sdk_inc_ucrt) == 1 and sdk_inc_ucrt or nil,
-                        vim.fn.isdirectory(sdk_inc_um) == 1 and sdk_inc_um or nil,
-                        vim.fn.isdirectory(sdk_inc_shared) == 1 and sdk_inc_shared or nil,
-                    }, ";")
-
-                    return true
-                end
-
-                if vim.fn.executable("cl.exe") ~= 1 then
-                    if not find_msvc() then
+                    if vim.fn.executable("cl.exe") ~= 1 and not find_msvc() then
                         vim.notify(
                             "No C compiler found (cl.exe). Treesitter parsers cannot be compiled. "
                             .. "Install Visual Studio Build Tools with 'Desktop development with C++' workload.",
