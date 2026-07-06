@@ -87,10 +87,6 @@ return {
                 on_attach = disable_semantic_tokens,
             })
 
-            pcall(function()
-                disable_semantic_token_capability(require("powershell.config").config.capabilities)
-            end)
-
             vim.api.nvim_create_autocmd("User", {
                 group = group,
                 pattern = "powershell.nvim-term",
