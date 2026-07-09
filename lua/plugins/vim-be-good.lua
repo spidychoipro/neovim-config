@@ -26,13 +26,6 @@ return {
                     vim.cmd("tabnew")
                     vim.cmd("only")
                     vim.cmd("VimBeGood")
-                    vim.defer_fn(function()
-                        local buf = vim.api.nvim_get_current_buf()
-                        local l = vim.api.nvim_buf_get_lines(buf, 0, 1, false)
-                        if #l == 1 and l[1] == "" then
-                            pcall(vim.api.nvim_buf_set_lines, buf, 0, 1, false, {})
-                        end
-                    end, 50)
                 end,
                 desc = "VimBeGood",
             },
