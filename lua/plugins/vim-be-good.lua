@@ -5,6 +5,7 @@ return {
         init = function()
             vim.g.vim_be_good_window_padding_row = 0
             vim.g.vim_be_good_window_padding_col = 0
+            vim.g.vim_be_good_snake_walls = true
         end,
         config = function()
             local function empty(n)
@@ -37,6 +38,16 @@ return {
                 end
                 vim.api.nvim_buf_set_lines(self.bufh, offset, offset + #lines, false, lines)
             end
+            local SnakeGame = require("vim-be-good.games.snakelib.snakegame")
+            local orig_new = SnakeGame.new
+            SnakeGame.new = function(_, width, height, difficultyLevel, endGameCallback)
+                local self = orig_new(nil, width, height, difficultyLevel, endGameCallback)
+                if vim.g.vim_be_good_snake_walls ~= nil then
+                    self.noWalls = not vim.g.vim_be_good_snake_walls
+                end
+                return self
+            end
+
             Buffer.getGameLines = function(self)
                 local startOffset = #(self.instructions or {})
                 local len = #(self.lastRendered or {})
