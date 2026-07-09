@@ -47,6 +47,13 @@ require("lazy").setup("plugins", {
 
 vim.keymap.set("n", "<leader>lu", "<Cmd>Lazy update<CR>", { desc = "Lazy update plugins" })
 
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LazyDone",
+  callback = function()
+    require("lazy").check()
+  end,
+})
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "lazy",
   callback = function()

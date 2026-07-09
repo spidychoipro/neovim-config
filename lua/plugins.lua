@@ -42,6 +42,7 @@ local plugins = {
   require("plugins.telescope"),
   require("plugins.treesitter"),
   require("plugins.trouble"),
+  require("plugins.vim-be-good"),
   require("plugins.which-key"),
   require("plugins.yanky"),
 }

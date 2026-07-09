@@ -150,7 +150,13 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.lsp.config("basedpyright", {
-  cmd = { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" },
+  cmd = (function()
+    local exe = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "basedpyright", "venv", "Scripts", "basedpyright-langserver.exe")
+    if vim.fn.filereadable(exe) == 1 then
+      return { exe, "--stdio" }
+    end
+    return { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" }
+  end)(),
   filetypes = {"python"},
   capabilities = capabilities,
   root_markers = {},
@@ -185,7 +191,8 @@ vim.lsp.config("basedpyright", {
       analysis = {
         diagnosticMode = "openFilesOnly",
         autoSearchPaths = false,
-        fileEnumerationTimeout = 1,
+        autoImportCompletions = false,
+        useLibraryCodeForTypes = false,
         exclude = python_analysis_exclude,
         typeCheckingMode = "basic",
         diagnosticSeverityOverrides = {
@@ -202,6 +209,7 @@ vim.lsp.config("basedpyright", {
           reportFunctionMemberAccess = "information",
           reportUnusedImport = "warning",
           reportUnusedVariable = "warning",
+          reportImportCycles = "none",
         },
       },
     },
