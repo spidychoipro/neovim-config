@@ -35,6 +35,26 @@ return {
             end,
         },
         config = function(_, opts)
+            local util = require("screenkey.util")
+            util.validate = function(specs, user_config, path)
+                local errors = {}
+                for key, spec in pairs(specs) do
+                    local ok, err = pcall(vim.validate, key, spec[1], spec[2], spec[3])
+                    if not ok then
+                        table.insert(errors, string.format("%s: %s", path, err))
+                    end
+                end
+                for key in pairs(user_config) do
+                    if not specs[key] then
+                        table.insert(errors, string.format("'%s' is not a valid key of %s", key, path))
+                    end
+                end
+                if #errors == 0 then
+                    return true, nil
+                end
+                return false, table.concat(errors, "\n")
+            end
+
             local screenkey = require("screenkey")
             screenkey.setup(opts)
 
