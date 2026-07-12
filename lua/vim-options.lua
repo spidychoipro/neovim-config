@@ -41,6 +41,9 @@ vim.opt.ignorecase = editor.ignorecase
 vim.opt.smartcase = editor.smartcase
 vim.opt.undofile = editor.undofile
 vim.opt.sessionoptions = editor.sessionoptions
+vim.opt.wrap = editor.wrap
+vim.opt.linebreak = editor.linebreak
+vim.opt.colorcolumn = editor.colorcolumn
 
 vim.opt.lazyredraw = false
 vim.opt.synmaxcol = 200
@@ -93,6 +96,15 @@ if keymaps.external_runner then
     require("utils.external-runner").run_current_file()
   end, { desc = "Run current file" })
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("TextWrap", { clear = true }),
+  pattern = { "markdown", "text", "gitcommit" },
+  callback = function()
+    vim.wo.wrap = true
+    vim.wo.linebreak = true
+  end,
+})
 
 vim.api.nvim_create_autocmd("BufReadPre", {
   group = vim.api.nvim_create_augroup("LargeFileOpts", { clear = true }),

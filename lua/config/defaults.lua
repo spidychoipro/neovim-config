@@ -43,6 +43,9 @@ local defaults = {
     smartcase = true,
     undofile = true,
     sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,localoptions",
+    wrap = false,
+    linebreak = false,
+    colorcolumn = "80",
   },
   features = {
     auto_enable_inline_diagnostics = true,
