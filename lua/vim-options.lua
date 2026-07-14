@@ -127,3 +127,13 @@ vim.api.nvim_create_autocmd("FileType", {
     end
   end,
 })
+
+-- Force Neovim to re-read terminal size on startup (fixes WSL terminal size detection)
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = vim.api.nvim_create_augroup("WSLResizeFix", { clear = true }),
+  callback = function()
+    vim.schedule(function()
+      pcall(vim.loop.kill, vim.fn.getpid(), "sigwinch")
+    end)
+  end,
+})
