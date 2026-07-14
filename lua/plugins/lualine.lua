@@ -64,7 +64,6 @@ return {
           'encoding',
           'fileformat',
           'filetype',
-          'progress',
         },
       },
       inactive_sections = {

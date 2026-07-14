@@ -45,7 +45,7 @@ local defaults = {
     sessionoptions = "blank,buffers,curdir,folds,help,tabpages,localoptions",
     wrap = false,
     linebreak = false,
-    colorcolumn = "80",
+    colorcolumn = "",
   },
   features = {
     auto_enable_inline_diagnostics = true,
