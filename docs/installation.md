@@ -68,6 +68,36 @@ Start Neovim:
 nvim
 ```
 
+## WSL (Bash or Zsh)
+
+Follow the Linux backup and clone steps above, but install this shell wrapper before starting Neovim:
+
+```bash
+if [ -n "${ZSH_VERSION:-}" ]; then
+  rc_file="${ZDOTDIR:-$HOME}/.zshrc"
+else
+  rc_file="$HOME/.bashrc"
+fi
+
+if ! grep -Fq '# Neovim WSL DA1 startup filter' "$rc_file" 2>/dev/null; then
+  cat >> "$rc_file" <<'EOF'
+
+# Neovim WSL DA1 startup filter
+nvim() {
+  command nvim \
+    --cmd 'lua dofile(vim.fn.stdpath("config") .. "/lua/utils/wsl-terminal.lua")' \
+    "$@"
+}
+EOF
+fi
+
+exec "$SHELL" -l
+```
+
+The wrapper loads `lua/utils/wsl-terminal.lua` with `--cmd`, before `init.lua` can receive a fragmented Windows Terminal DA1 response as Normal-mode input. `vim.fn.stdpath("config")` keeps the command valid for both the normal `~/.config/nvim` install and a shared config selected through XDG environment variables.
+
+Run `nvim` after the new shell prompt appears. Do not install this wrapper on native Windows or Linux; the regular platform instructions remain unchanged.
+
 ## Symlink Install
 
 If you prefer to keep the repo somewhere else, clone it into a projects folder and symlink it.

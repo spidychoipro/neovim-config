@@ -84,6 +84,37 @@ git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
 nvim
 ```
 
+### WSL (Bash 또는 Zsh)
+
+WSL에서는 터미널 응답 필터를 `init.lua`보다 먼저 불러와야 합니다. 설정을 복제한 다음 현재 셸 설정에 시작 래퍼를 설치하세요.
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null || true
+git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
+
+if [ -n "${ZSH_VERSION:-}" ]; then
+  rc_file="${ZDOTDIR:-$HOME}/.zshrc"
+else
+  rc_file="$HOME/.bashrc"
+fi
+
+if ! grep -Fq '# Neovim WSL DA1 startup filter' "$rc_file" 2>/dev/null; then
+  cat >> "$rc_file" <<'EOF'
+
+# Neovim WSL DA1 startup filter
+nvim() {
+  command nvim \
+    --cmd 'lua dofile(vim.fn.stdpath("config") .. "/lua/utils/wsl-terminal.lua")' \
+    "$@"
+}
+EOF
+fi
+
+exec "$SHELL" -l
+```
+
+새 셸 프롬프트가 나타나면 `nvim`을 실행하세요. Windows와 일반 Linux에서는 이 래퍼가 필요하지 않습니다.
+
 첫 실행 시 `lazy.nvim`이 자동으로 bootstrap됩니다. 자세한 내용은 [docs/installation.md](./docs/installation.md)를 참고하세요.
 
 ## 자주 쓰는 단축키

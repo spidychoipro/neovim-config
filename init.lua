@@ -1,3 +1,5 @@
+require("utils.wsl-terminal").setup()
+
 if vim.loader then
   vim.loader.enable()
 end

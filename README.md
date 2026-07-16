@@ -86,6 +86,37 @@ git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
 nvim
 ```
 
+### WSL (Bash or Zsh)
+
+WSL needs the terminal-response filter to load before `init.lua`. Clone the config, then install the startup wrapper in the active shell profile:
+
+```bash
+mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null || true
+git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
+
+if [ -n "${ZSH_VERSION:-}" ]; then
+  rc_file="${ZDOTDIR:-$HOME}/.zshrc"
+else
+  rc_file="$HOME/.bashrc"
+fi
+
+if ! grep -Fq '# Neovim WSL DA1 startup filter' "$rc_file" 2>/dev/null; then
+  cat >> "$rc_file" <<'EOF'
+
+# Neovim WSL DA1 startup filter
+nvim() {
+  command nvim \
+    --cmd 'lua dofile(vim.fn.stdpath("config") .. "/lua/utils/wsl-terminal.lua")' \
+    "$@"
+}
+EOF
+fi
+
+exec "$SHELL" -l
+```
+
+Run `nvim` after the new shell prompt appears. Native Windows and Linux do not need this wrapper.
+
 Lazy.nvim will bootstrap itself on first launch. Mason-managed tools are installed from inside Neovim.
 
 See the full guide: [docs/installation.md](./docs/installation.md).
