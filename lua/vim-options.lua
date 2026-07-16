@@ -76,7 +76,7 @@ vim.opt.colorcolumn = ""
 vim.opt.lazyredraw = false
 vim.opt.synmaxcol = 200
 vim.opt.redrawtime = 1500
-vim.opt.ttimeoutlen = 0
+vim.opt.ttimeoutlen = 50
 vim.opt.timeoutlen = 500
 vim.opt.shortmess:append("sI")
 vim.opt.showmode = false
