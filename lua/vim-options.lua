@@ -6,6 +6,33 @@ local windows = config.windows or {}
 
 vim.g.mapleader = config.leader
 
+-- WSL may auto-detect win32yank.exe even when it cannot reliably access the
+-- Windows clipboard. Pin the provider to Neovim's documented WSL commands.
+local is_wsl = vim.env.WSL_DISTRO_NAME ~= nil or vim.env.WSL_INTEROP ~= nil
+if is_wsl then
+  local paste_command = {
+    "powershell.exe",
+    "-NoLogo",
+    "-NoProfile",
+    "-NonInteractive",
+    "-Command",
+    '$text = Get-Clipboard -Raw; if ($null -ne $text) { [Console]::Out.Write($text.ToString().Replace("`r", "")) }',
+  }
+
+  vim.g.clipboard = {
+    name = "WslClipboard",
+    copy = {
+      ["+"] = { "clip.exe" },
+      ["*"] = { "clip.exe" },
+    },
+    paste = {
+      ["+"] = paste_command,
+      ["*"] = paste_command,
+    },
+    cache_enabled = 0,
+  }
+end
+
 if providers.python3 == false then
   vim.g.loaded_python3_provider = 0
 end
@@ -43,7 +70,8 @@ vim.opt.undofile = editor.undofile
 vim.opt.sessionoptions = editor.sessionoptions
 vim.opt.wrap = editor.wrap
 vim.opt.linebreak = editor.linebreak
-vim.opt.colorcolumn = editor.colorcolumn
+-- Old auto-session files can restore a local colorcolumn after startup.
+vim.opt.colorcolumn = ""
 
 vim.opt.lazyredraw = false
 vim.opt.synmaxcol = 200
@@ -53,6 +81,30 @@ vim.opt.timeoutlen = 500
 vim.opt.shortmess:append("sI")
 vim.opt.showmode = false
 vim.opt.shada = "!,'500,<50,s10,h"
+
+local colorcolumn_group = vim.api.nvim_create_augroup("NoColorColumn", { clear = true })
+
+local function clear_colorcolumns()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    if vim.api.nvim_win_is_valid(win) then
+      vim.wo[win].colorcolumn = ""
+    end
+  end
+end
+
+vim.api.nvim_create_autocmd({ "VimEnter", "SessionLoadPost" }, {
+  group = colorcolumn_group,
+  callback = clear_colorcolumns,
+  desc = "Remove color columns restored by sessions",
+})
+
+vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
+  group = colorcolumn_group,
+  callback = function()
+    vim.opt_local.colorcolumn = ""
+  end,
+  desc = "Keep buffers free of color columns",
+})
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
@@ -125,5 +177,35 @@ vim.api.nvim_create_autocmd("FileType", {
     if vim.b[args.buf] and vim.b[args.buf].large_file then
       pcall(vim.treesitter.stop, args.buf)
     end
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  group = vim.api.nvim_create_augroup("CheckHealthFullScreen", { clear = true }),
+  pattern = "checkhealth",
+  callback = function(args)
+    vim.schedule(function()
+      if not vim.api.nvim_buf_is_valid(args.buf) then
+        return
+      end
+
+      local health_win = vim.fn.bufwinid(args.buf)
+      if health_win == -1 or vim.api.nvim_win_get_config(health_win).relative ~= "" then
+        return
+      end
+
+      local tab = vim.api.nvim_win_get_tabpage(health_win)
+      local normal_windows = 0
+      for _, win in ipairs(vim.api.nvim_tabpage_list_wins(tab)) do
+        if vim.api.nvim_win_get_config(win).relative == "" then
+          normal_windows = normal_windows + 1
+        end
+      end
+
+      if normal_windows > 1 then
+        vim.api.nvim_set_current_win(health_win)
+        vim.cmd("wincmd T")
+      end
+    end)
   end,
 })
