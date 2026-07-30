@@ -62,6 +62,14 @@ Clone the repository:
 git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
 ```
 
+Install Tree-sitter CLI (required for syntax highlighting and parser compilation):
+
+```bash
+sudo pacman -S tree-sitter-cli
+```
+
+> For other distros: `sudo apt install tree-sitter-cli` (Debian/Ubuntu), `sudo dnf install tree-sitter-cli` (Fedora), or `npm install -g tree-sitter-cli`.
+
 Start Neovim:
 
 ```bash
