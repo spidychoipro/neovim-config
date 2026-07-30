@@ -81,6 +81,7 @@ nvim
 ```bash
 mv ~/.config/nvim ~/.config/nvim.backup 2>/dev/null || true
 git clone https://github.com/spidychoipro/neovim-config ~/.config/nvim
+sudo pacman -S tree-sitter-cli   # or: npm install -g tree-sitter-cli
 nvim
 ```
 
