@@ -107,7 +107,7 @@ If an LSP/tool is missing (e.g. auto-complete or diagnostics not working), force
 
 > ⚠️ Do **not** add `wget` to the `ensure_installed` list. `wget` is not a Mason package (it is a system tool), so the install aborts with `Cannot find package "wget"`.
 
-> ⚠️ On Linux, `lsp-config.lua` must prepend Mason's `bin/` to `PATH` with `:` (colon). The original used `;` (Windows separator), which silently breaks `conform.nvim`/`nvim-lint` on Linux — tools install but stay "missing".
+> ⚠️ The PATH separator logic is centralized in `lua/utils/mason.lua` (`path_sep()`/`prepend_to_path()`), shared by `lsp-config.lua`, `vim-options.lua`, and `treesitter.lua`. It uses `:` on Linux and `;` on Windows. The original `lsp-config.lua` hardcoded `;` (Windows separator), which silently broke `conform.nvim`/`nvim-lint` on Linux — tools install but stay "missing".
 
 ### WSL (Bash or Zsh)
 

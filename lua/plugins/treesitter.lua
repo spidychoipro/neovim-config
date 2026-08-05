@@ -152,7 +152,7 @@ return {
                             end
                         end
 
-                        vim.env.PATH = bin_x64 .. ";" .. (vim.env.PATH or "")
+                        vim.env.PATH = bin_x64 .. require("utils.mason").path_sep() .. (vim.env.PATH or "")
                         vim.env.LIB = table.concat({
                             vim.fs.joinpath(msvc_base, msvc_ver, "lib", "x64"),
                             vim.fn.isdirectory(vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64")) == 1 and vim.fs.joinpath(sdk_root, "Lib", sdk_ver, "ucrt", "x64") or nil,

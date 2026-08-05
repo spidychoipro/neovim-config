@@ -108,11 +108,7 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 if is_windows then
-  local function prepend_path(path)
-    if vim.fn.isdirectory(path) == 1 and not vim.env.PATH:find(path, 1, true) then
-      vim.env.PATH = path .. ";" .. vim.env.PATH
-    end
-  end
+  local prepend_path = require("utils.mason").prepend_to_path
 
   prepend_path(vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin"))
 

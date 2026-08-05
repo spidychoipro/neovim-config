@@ -105,7 +105,7 @@ LSP/도구가 누락된 경우(예: 자동완성이나 진단이 안 되는 경�
 
 > ⚠️ `ensure_installed` 목록에 `wget`을 추가하지 마세요. `wget`은 Mason 패키지가 아닙니다(시스템 도구). 추가하면 `Cannot find package "wget"` 오류로 설치가 중단됩니다.
 
-> ⚠️ 리눅스에서 `lsp-config.lua`는 Mason의 `bin/`을 `PATH`에 `:`(콜론)으로 추가해야 합니다. 원래 코드는 `;`(Windows 구분자)을 사용해 리눅스의 `conform.nvim`/`nvim-lint`가 도구를 찾지 못하고 조용히 실패했습니다 — 도구는 설치됐는데 "missing"으로 표시되는 증상입니다.
+> ⚠️ PATH 구분자 로직은 `lua/utils/mason.lua`의 `path_sep()`/`prepend_to_path()`로 중앙화되어 `lsp-config.lua`, `vim-options.lua`, `treesitter.lua`가 함께 사용합니다. 리눅스에선 `:`, 윈도우에선 `;`을 자동으로 선택합니다. 원래 `lsp-config.lua`는 `;`(Windows 구분자)을 하드코딩해 리눅스의 `conform.nvim`/`nvim-lint`가 도구를 찾지 못하고 조용히 실패했습니다 — 도구는 설치됐는데 "missing"으로 표시되는 증상입니다.
 
 ### WSL (Bash 또는 Zsh)
 

@@ -15,8 +15,7 @@ return {
         config = function()
             local mason_bin = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin")
             if vim.fn.isdirectory(mason_bin) == 1 then
-                local path_sep = vim.loop.os_uname().sysname == "Windows_NT" and ";" or ":"
-                vim.env.PATH = mason_bin .. path_sep .. vim.env.PATH
+                require("utils.mason").prepend_to_path(mason_bin)
             end
             require("mason-tool-installer").setup({
                 ensure_installed = {

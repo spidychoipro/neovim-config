@@ -2,6 +2,21 @@ local M = {}
 
 local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
 
+function M.path_sep()
+  return is_windows and ";" or ":"
+end
+
+function M.prepend_to_path(dir)
+  if vim.fn.isdirectory(dir) ~= 1 then
+    return false
+  end
+  if vim.env.PATH and vim.env.PATH:find(dir, 1, true) then
+    return true
+  end
+  vim.env.PATH = dir .. M.path_sep() .. (vim.env.PATH or "")
+  return true
+end
+
 function M.get_package_path(package_name)
   local ok, registry = pcall(require, "mason-registry")
   if not ok then
