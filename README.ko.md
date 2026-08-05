@@ -85,6 +85,28 @@ sudo pacman -S tree-sitter-cli   # or: npm install -g tree-sitter-cli
 nvim
 ```
 
+#### Linux 시스템 요구사항
+
+| 도구 | 용도 | 설치 |
+| --- | --- | --- |
+| `rg` (ripgrep) | Telescope `live_grep` | `sudo pacman -S ripgrep` |
+| `fd` | Telescope `find_files` 속도 향상 | `sudo pacman -S fd` |
+| Git | 플러그인 설치 | `sudo pacman -S git` |
+| Node.js / npm | LSP 서버 런타임 | `sudo pacman -S nodejs npm` |
+| Python / pipx | Python LSP, 포매터, 디버거 | `sudo pacman -S python python-pipx` |
+
+나머지는 `mason-tool-installer`가 자동 설치합니다(`lua/plugins/lsp-config.lua`에 정의됨): `lua-language-server`, `basedpyright`, `bash-language-server`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, `shfmt`, `tree-sitter-cli`. Mason의 `bin/`은 `PATH`에 자동으로 추가되므로 포매터/린터(`:Format`은 conform.nvim, lint는 nvim-lint)도 함께 동작합니다.
+
+LSP/도구가 누락된 경우(예: 자동완성이나 진단이 안 되는 경우) Neovim 안에서 설치를 강제하세요:
+
+```vim
+:MasonToolsInstallSync
+```
+
+> ⚠️ `ensure_installed` 목록에 `wget`을 추가하지 마세요. `wget`은 Mason 패키지가 아닙니다(시스템 도구). 추가하면 `Cannot find package "wget"` 오류로 설치가 중단됩니다.
+
+> ⚠️ 리눅스에서 `lsp-config.lua`는 Mason의 `bin/`을 `PATH`에 `:`(콜론)으로 추가해야 합니다. 원래 코드는 `;`(Windows 구분자)을 사용해 리눅스의 `conform.nvim`/`nvim-lint`가 도구를 찾지 못하고 조용히 실패했습니다 — 도구는 설치됐는데 "missing"으로 표시되는 증상입니다.
+
 ### WSL (Bash 또는 Zsh)
 
 WSL에서는 터미널 응답 필터를 `init.lua`보다 먼저 불러와야 합니다. 설정을 복제한 다음 현재 셸 설정에 시작 래퍼를 설치하세요.
