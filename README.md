@@ -87,6 +87,28 @@ sudo pacman -S tree-sitter-cli   # or: npm install -g tree-sitter-cli
 nvim
 ```
 
+#### Linux system requirements
+
+| Tool | Purpose | Install |
+| --- | --- | --- |
+| `rg` (ripgrep) | Telescope `live_grep` | `sudo pacman -S ripgrep` |
+| `fd` | Faster Telescope `find_files` | `sudo pacman -S fd` |
+| Git | Plugin installs | `sudo pacman -S git` |
+| Node.js / npm | LSP server runtime | `sudo pacman -S nodejs npm` |
+| Python / pipx | Python LSP, formatters, debugger | `sudo pacman -S python python-pipx` |
+
+Everything else is installed by `mason-tool-installer` (defined in `lua/plugins/lsp-config.lua`): `lua-language-server`, `basedpyright`, `bash-language-server`, `clangd`, `clang-format`, `debugpy`, `codelldb`, `black`, `isort`, `stylua`, `shellcheck`, `shfmt`, `tree-sitter-cli`. Mason's `bin/` is added to `PATH` automatically, so formatters/linters (`:Format` via conform.nvim, lint via nvim-lint) work too.
+
+If an LSP/tool is missing (e.g. auto-complete or diagnostics not working), force the install inside Neovim:
+
+```vim
+:MasonToolsInstallSync
+```
+
+> ⚠️ Do **not** add `wget` to the `ensure_installed` list. `wget` is not a Mason package (it is a system tool), so the install aborts with `Cannot find package "wget"`.
+
+> ⚠️ On Linux, `lsp-config.lua` must prepend Mason's `bin/` to `PATH` with `:` (colon). The original used `;` (Windows separator), which silently breaks `conform.nvim`/`nvim-lint` on Linux — tools install but stay "missing".
+
 ### WSL (Bash or Zsh)
 
 WSL needs the terminal-response filter to load before `init.lua`. Clone the config, then install the startup wrapper in the active shell profile:
