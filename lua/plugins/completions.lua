@@ -1,4 +1,4 @@
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local is_windows = require("utils.platform").is_windows
 
 return {
   {

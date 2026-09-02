@@ -1,13 +1,12 @@
 local M = {}
+local platform = require("utils.platform")
 
 local esc = "\27"
 
-local function is_wsl()
-  return vim.env.WSL_DISTRO_NAME ~= nil or vim.env.WSL_INTEROP ~= nil
-end
+local is_wsl = platform.is_wsl
 
 function M.setup()
-  if not is_wsl() then
+  if not is_wsl then
     return
   end
 

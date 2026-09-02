@@ -1,6 +1,7 @@
 local M = {}
+local platform = require("utils.platform")
 
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local is_windows = platform.is_windows
 
 -- Strict validation for venv
 local function is_valid_venv(path)
@@ -11,12 +12,7 @@ local function is_valid_venv(path)
         return false
     end
 
-    local python_exe
-    if is_windows then
-        python_exe = vim.fs.joinpath(path, "Scripts", "python.exe")
-    else
-        python_exe = vim.fs.joinpath(path, "bin", "python")
-    end
+    local python_exe = platform.venv_python(path)
 
     return vim.fn.executable(python_exe) == 1
 end
@@ -45,11 +41,7 @@ function M.find_venv(workspace)
     for _, name in ipairs(venv_names) do
         local venv_path = vim.fs.joinpath(workspace, name)
         if is_valid_venv(venv_path) then
-            if is_windows then
-                return vim.fs.joinpath(venv_path, "Scripts", "python.exe")
-            else
-                return vim.fs.joinpath(venv_path, "bin", "python")
-            end
+            return platform.venv_python(venv_path)
         end
     end
 
@@ -88,7 +80,7 @@ function M.resolve_python(workspace)
     end
 
     -- Default fallback
-    local default = is_windows and "python.exe" or "python"
+    local default = platform.python_cmd()
     return {
         path = default,
         source = "system default fallback",

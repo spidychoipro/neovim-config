@@ -16,20 +16,22 @@ return {
         local file = info.file
         local templates = {}
 
-        if filetype == "python" and vim.fn.executable("python") == 1 then
-            table.insert(templates, {
-                name = "Run current Python file",
-                desc = "Run " .. name,
-                tags = { overseer.TAG.RUN },
-                builder = function()
-                    local venv_utils = require("utils.venv")
-                    local python = venv_utils.get_python_path()
-                    return {
-                        cmd = { python, file },
-                        cwd = dir,
-                    }
-                end,
-            })
+        if filetype == "python" then
+            local venv_utils = require("utils.venv")
+            local python = venv_utils.get_python_path(dir)
+            if python and vim.fn.executable(python) == 1 then
+                table.insert(templates, {
+                    name = "Run current Python file",
+                    desc = "Run " .. name,
+                    tags = { overseer.TAG.RUN },
+                    builder = function()
+                        return {
+                            cmd = { python, file },
+                            cwd = dir,
+                        }
+                    end,
+                })
+            end
         end
 
         local lua_cmd = runner.find_lua()

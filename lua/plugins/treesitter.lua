@@ -2,12 +2,20 @@ return {
     {
         "nvim-treesitter/nvim-treesitter",
         branch = "main",
-        event = "VeryLazy",
+        lazy = false,
         build = ":TSUpdate",
 
         config = function()
             local treesitter = require("nvim-treesitter")
-            local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+            local is_windows = require("utils.platform").is_windows
+
+            -- On the `main` branch, `setup()` only configures parser/query
+            -- install dirs. Highlighting is provided by Neovim core via
+            -- `vim.treesitter.start()` and indentation via the plugin's
+            -- `indentexpr`; the old `highlight`/`indent`/`incremental_selection`
+            -- /`textobjects` module options are ignored, so they are removed.
+            treesitter.setup {}
+
             local parsers = {
                 "bash",
                 "c",
@@ -23,19 +31,49 @@ return {
                 "vimdoc",
             }
 
-            treesitter.setup({
-                highlight = {
-                    enable = true,
-                    max_file_lines = 5000,
-                },
-                incremental_selection = { enable = false },
-                textobjects = { enable = false },
-                indent = { enable = true },
-            })
-
             vim.treesitter.language.register("bash", { "sh", "bash", "zsh" })
             vim.treesitter.language.register("powershell", { "ps1", "psm1", "psd1", "powershell" })
             vim.treesitter.language.register("vimdoc", { "help", "vimdoc" })
+
+            local parser_filetypes = {
+                bash = { "sh", "bash", "zsh" },
+                c = { "c" },
+                cpp = { "cpp" },
+                json = { "json" },
+                lua = { "lua" },
+                markdown = { "markdown", "markdown_inline" },
+                powershell = { "ps1", "psm1", "psd1", "powershell" },
+                python = { "python" },
+                query = { "query" },
+                vim = { "vim" },
+                vimdoc = { "help", "vimdoc" },
+            }
+
+            local filetypes = {}
+            for _, fts in pairs(parser_filetypes) do
+                for _, ft in ipairs(fts) do
+                    filetypes[ft] = true
+                end
+            end
+            local enabled_fts = vim.tbl_keys(filetypes)
+            table.sort(enabled_fts)
+
+            -- Enable core tree-sitter highlighting (official `main` branch way).
+            vim.api.nvim_create_autocmd("FileType", {
+                pattern = enabled_fts,
+                callback = function()
+                    vim.treesitter.start()
+                end,
+            })
+
+            -- Experimental tree-sitter indentation (official `main` branch way);
+            -- mirrors the previous `indent = { enable = true }` setting.
+            vim.api.nvim_create_autocmd("FileType", {
+                pattern = enabled_fts,
+                callback = function()
+                    vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end,
+            })
 
             local function is_plugin_manager_command()
                 for _, arg in ipairs(vim.v.argv or {}) do

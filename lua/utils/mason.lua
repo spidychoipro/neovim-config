@@ -1,9 +1,8 @@
 local M = {}
-
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local platform = require("utils.platform")
 
 function M.path_sep()
-  return is_windows and ";" or ":"
+  return platform.path_sep()
 end
 
 function M.prepend_to_path(dir)
@@ -45,7 +44,7 @@ end
 
 function M.find_bin_with_fallback(package_name, binary_name, known_relative_path)
   local mason_bin = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "bin")
-  for _, ext in ipairs({ ".cmd", ".exe", ".bat", "" }) do
+  for _, ext in ipairs(platform.exec_exts) do
     local candidate = vim.fs.joinpath(mason_bin, binary_name .. ext)
     if vim.fn.filereadable(candidate) == 1 then
       return candidate

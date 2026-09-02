@@ -6,7 +6,7 @@ return {
             "hrsh7th/cmp-nvim-lsp",
         },
         config = function()
-            local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+            local is_windows = require("utils.platform").is_windows
             local session_file = vim.fs.joinpath(vim.fn.stdpath("cache"), "powershell_es.session.json")
             local shell = is_windows and vim.fn.exepath("pwsh.exe") or vim.fn.exepath("pwsh")
             local powershell_term_jobs = {}

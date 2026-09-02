@@ -8,7 +8,8 @@ vim.g.mapleader = config.leader
 
 -- WSL may auto-detect win32yank.exe even when it cannot reliably access the
 -- Windows clipboard. Pin the provider to Neovim's documented WSL commands.
-local is_wsl = vim.env.WSL_DISTRO_NAME ~= nil or vim.env.WSL_INTEROP ~= nil
+local platform = require("utils.platform")
+local is_wsl = platform.is_wsl
 if is_wsl then
   local paste_command = {
     "powershell.exe",
@@ -106,7 +107,7 @@ vim.api.nvim_create_autocmd({ "BufWinEnter", "WinEnter" }, {
   desc = "Keep buffers free of color columns",
 })
 
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local is_windows = require("utils.platform").is_windows
 if is_windows then
   local prepend_path = require("utils.mason").prepend_to_path
 

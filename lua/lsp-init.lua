@@ -39,7 +39,8 @@ local function cleanup_stale_single_file_workspaces()
 end
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+local platform = require("utils.platform")
+local is_windows = platform.is_windows
 local single_file_workspaces = {}
 local python_analysis_exclude = {
   "**/.git",
@@ -125,7 +126,7 @@ local function single_file_root(fname)
 end
 
 vim.lsp.config("lua_ls", {
-  cmd = { tool_path("lua-language-server", "lua-language-server", "bin/lua-language-server.exe") },
+  cmd = { tool_path("lua-language-server", "lua-language-server", is_windows and "bin/lua-language-server.exe" or "bin/lua-language-server") },
   filetypes = { "lua" },
   capabilities = capabilities,
   root_dir = function(bufnr, on_dir)
@@ -151,11 +152,15 @@ vim.lsp.config("lua_ls", {
 
 vim.lsp.config("basedpyright", {
   cmd = (function()
-    local exe = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "basedpyright", "venv", "Scripts", "basedpyright-langserver.exe")
+    local pkg = vim.fs.joinpath(vim.fn.stdpath("data"), "mason", "packages", "basedpyright")
+    local exe = platform.basedpyright_langserver(pkg)
     if vim.fn.filereadable(exe) == 1 then
       return { exe, "--stdio" }
     end
-    return { tool_path("basedpyright-langserver", "basedpyright", "node_modules/.bin/basedpyright-langserver.cmd"), "--stdio" }
+    local shim = is_windows
+        and "node_modules/.bin/basedpyright-langserver.cmd"
+        or "node_modules/.bin/basedpyright-langserver"
+    return { tool_path("basedpyright-langserver", "basedpyright", shim), "--stdio" }
   end)(),
   filetypes = {"python"},
   capabilities = capabilities,
@@ -238,7 +243,7 @@ vim.lsp.config("basedpyright", {
 })
 
 vim.lsp.config("bashls", {
-  cmd = { tool_path("bash-language-server", "bash-language-server", "node_modules/.bin/bash-language-server.cmd"), "start" },
+  cmd = { tool_path("bash-language-server", "bash-language-server", is_windows and "node_modules/.bin/bash-language-server.cmd" or "node_modules/.bin/bash-language-server"), "start" },
   filetypes = { "sh", "bash" },
   root_markers = { ".git", ".shellcheckrc", "ShellCheckrc" },
   capabilities = capabilities,
@@ -254,7 +259,7 @@ vim.lsp.config("bashls", {
 
 vim.lsp.config("clangd", {
   cmd = {
-    tool_path("clangd", "clangd", "clangd_*/bin/clangd.exe"),
+    tool_path("clangd", "clangd", is_windows and "clangd_*/bin/clangd.exe" or "clangd_*/bin/clangd"),
     "--background-index",
     "--clang-tidy",
     "--completion-style=detailed",

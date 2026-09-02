@@ -1,6 +1,7 @@
 local M = {}
+local platform = require("utils.platform")
 
-M.is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+M.is_windows = platform.is_windows
 
 function M.executable(name)
   return vim.fn.executable(name) == 1

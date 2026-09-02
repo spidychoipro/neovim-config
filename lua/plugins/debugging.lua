@@ -22,7 +22,7 @@ return {
 			local dap = require("dap")
 			local dapui = require("dapui")
 			local mason = require("utils.mason")
-			local is_windows = vim.fn.has("win32") == 1 or vim.fn.has("win64") == 1
+			local is_windows = require("utils.platform").is_windows
 			local debugpy_python = mason.find_bin_with_fallback("debugpy", is_windows and "python.exe" or "python", is_windows and "venv/Scripts/python.exe" or "venv/bin/python")
 			local codelldb = mason.find_bin_with_fallback("codelldb", is_windows and "codelldb.exe" or "codelldb", is_windows and "extension/adapter/codelldb.exe" or "extension/adapter/codelldb")
 
